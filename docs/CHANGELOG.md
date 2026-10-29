@@ -17,7 +17,9 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 - Testes dos controles da F0: cadeia de suprimentos e identidade do CI/CD (20), trava de rede e probes
   fora do trace (3) e 6 testes do Terraform.
 - Plano reorganizado: coluna de segurança por task e o ciclo no lugar da "definição de pronto".
-- Relatório do gate da F0: `reports/seguranca/F0.md`.
+- Relatório do gate da F0: `reports/seguranca/F0.md`, no formato obrigatório da fundamentação.
+- Política central: a fundamentação original da Skill_SecurityFN ficou como Parte I, sem alterações;
+  a Parte II aplica a política ao projeto e registra a exceção formal às regras de confirmação.
 
 **Testado**
 - `make check`: 39 testes, 97% de cobertura, bandit, detect-secrets, pip-audit e zizmor sem achados.

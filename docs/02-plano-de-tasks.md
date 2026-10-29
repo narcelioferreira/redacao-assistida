@@ -17,14 +17,14 @@ com teste e mutação.
 Toda task passa pelas 5 etapas da política [security/Skill_SecurityFN.md](../security/Skill_SecurityFN.md),
 nesta ordem:
 
-1. **Código.** O dono implementa. Em tasks 👤, os casos de teste são combinados em texto antes do
-   código.
+1. **Código.** Escopo, proveniência e plano declarados antes; o dono implementa. Em tasks 👤, os
+   casos de teste são combinados em texto antes do código.
 2. **Segurança.** Checklist ASI e API sobre o diff; cada controle novo ganha teste e mutação em
    `security/mutacoes.toml`; `docs/03-seguranca.md` atualizado.
 3. **Teste.** `make check`, `make tf-check` e `make mutacao` verdes, localmente e no CI.
 4. **Validação.** Critério de aceite conferido de verdade (no Azure, quando a task chega lá),
    perguntas de revisão respondidas, CHANGELOG atualizado e relatório em `reports/seguranca/` com a
-   decisão do gate.
+   decisão do gate: Aprovado, Aprovado com ressalvas, Bloqueado ou Não conclusivo.
 5. **Próxima tarefa.** Coluna "Real" preenchida e próxima task apontada, com o dono.
 
 A proveniência segue o dono: 👤 `HUMANO` (perfil padrão), 🤖 `IA_ASSISTIDO` e 👥 `HÍBRIDO` (perfil
