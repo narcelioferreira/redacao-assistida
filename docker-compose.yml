@@ -1,0 +1,18 @@
+# Ambiente local. Na F1 entra o Postgres com pgvector; a fila da F2 roda em memória nos testes e
+# no Azure Service Bus na nuvem.
+services:
+  api:
+    build: .
+    image: redacao-assistida:local
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      APP_ENV: local
+      GIT_SHA: local
+    # Mesmas restrições do container no Azure: sistema de arquivos só de leitura e nenhuma
+    # capability do kernel.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
