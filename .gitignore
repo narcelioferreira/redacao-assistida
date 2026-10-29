@@ -1,5 +1,37 @@
-# Object file
-*.o
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
 
-# Ada Library Information
-*.ali
+# Segredos e configuração local: nunca vão para o repositório
+.env
+.env.*
+!.env.example
+
+# Terraform: o estado fica no Storage Account (bootstrap); o .terraform.lock.hcl é versionado
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Dados da avaliação (F3): baixados por script, não versionados
+data/raw/
+
+# Editores e sistema
+.idea/
+.vscode/
+.DS_Store

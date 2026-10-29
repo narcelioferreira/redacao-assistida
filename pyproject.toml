@@ -1,0 +1,77 @@
+[project]
+name = "redacao-assistida"
+version = "0.1.0"
+description = "Pré-correção de redações no estilo ENEM com LLM, fila e revisão humana, no Azure."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "opentelemetry-sdk>=1.30",
+    "opentelemetry-instrumentation-fastapi>=0.51b0",
+    "azure-monitor-opentelemetry>=1.6",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "httpx2>=2.13",  # cliente do TestClient
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pip-audit>=2.7",
+]
+
+[tool.uv]
+# Cadeia de suprimentos (decisão D9): só entram versões publicadas há 14 dias ou mais. Pacotes
+# comprometidos costumam ser descobertos e removidos do PyPI nesse intervalo. Vale também para os
+# PRs do Dependabot, que resolvem com esta mesma regra.
+exclude-newer = "14 days"
+# Exceções para correções de segurança apontadas pelo pip-audit, com data de corte exata. Remova cada
+# uma quando a versão corrigida completar 14 dias: a data por pacote substitui a janela relativa e,
+# esquecida aqui, travaria as atualizações seguintes desse pacote.
+#   certifi 2026.10.19 (PYSEC-2026-4320, vai para produção via requests): remover em 03/11/2026
+#   filelock 4.2.1 (17 CVEs, só no grupo dev via pip-audit): remover em 31/10/2026
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z", filelock = "2026-10-18T00:00:00Z" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/redacao"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# S = flake8-bandit (segurança).
+select = ["E", "F", "W", "I", "B", "UP", "S", "N", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # acentos/caracteres PT-BR em strings e comentários
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert é esperado em testes
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["src", "scripts"]
+
+[[tool.mypy.overrides]]
+# A distro do Azure Monitor não publica tipos.
+module = ["azure.monitor.opentelemetry.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["scripts"]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["redacao"]
+branch = true
