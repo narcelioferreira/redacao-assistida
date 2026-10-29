@@ -104,3 +104,11 @@ A API grava o lote e publica as mensagens: se a publicação falhar no meio, alg
 
 A API extrai o texto do `.docx` e descarta o arquivo. Isso dispensa o Blob Storage e minimiza dados de
 menores (LGPD).
+
+## D17 · Segurança por OWASP ASI, com teste e mutação por controle
+
+A referência principal é o OWASP Top 10 for Agentic Applications 2026 (ASI01–ASI10), com o AST e o
+OWASP API Security Top 10 como mapeamentos complementares (`docs/03-seguranca.md`). É a mesma
+estratégia do Lead Qualifier. Um controle só conta como implementado com um teste que o comprova e uma
+mutação (`security/mutacoes.toml`) que derruba esse teste quando a proteção é desligada. O CI roda
+todas as mutações. Toda task passa pelo ciclo de 5 etapas da política `security/Skill_SecurityFN.md`.

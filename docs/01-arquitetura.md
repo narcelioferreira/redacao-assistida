@@ -88,18 +88,8 @@ Convenções:
 
 ## Segurança e privacidade
 
-| Controle | Como | Situação |
-|---|---|---|
-| Nenhum segredo no GitHub | Deploy por OIDC com credencial federada restrita ao environment `demo` | ✅ |
-| Menor privilégio no CD | A identidade só acessa o grupo do projeto e o container do estado | ✅ |
-| Container endurecido | Usuário sem privilégio, sem binários setuid, sistema de arquivos só leitura no CI e no compose | ✅ |
-| Cadeia de suprimentos | Actions por SHA, imagens por digest, dependências com 14+ dias, SBOM e proveniência na imagem | ✅ |
-| Erros sem vazamento | Problem Details sem mensagem interna e sem ecoar o valor enviado | ✅ |
-| Segredos no histórico | gitleaks no CI | ✅ |
-| Sem senha de banco ou chave do LLM | Managed Identity no Postgres e no Azure OpenAI | ⏳ (F1) |
-| Autorização por objeto (OWASP API1) | Escopo por escola + RLS + teste de BOLA | ⏳ (F1) |
-| Injeção de prompt | Redação entra como dado; heurística marca para revisão; teste adversarial | ⏳ (F3) |
-| Dados de menores | Sem nome, sem arquivo original, retenção e exclusão a pedido | ⏳ (F2/F4) |
+O modelo de ameaças, os controles (com teste e mutação de cada um) e os riscos residuais estão em
+[03-seguranca.md](03-seguranca.md), mapeados ao OWASP ASI, AST e API Security Top 10.
 
 ## Observabilidade
 

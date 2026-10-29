@@ -26,8 +26,8 @@ def wait_for_version(
     last = "sem resposta"
     while True:
         try:
-            # S310: o esquema foi conferido acima (nada de file://).
-            with urllib.request.urlopen(url, timeout=10) as response:  # noqa: S310
+            # S310/B310: o esquema foi conferido acima (nada de file://).
+            with urllib.request.urlopen(url, timeout=10) as response:  # noqa: S310  # nosec B310
                 body = json.load(response)
             if expected is None or body.get("versao") == expected:
                 print(f"OK: {url} respondeu {body}")

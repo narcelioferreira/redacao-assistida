@@ -22,7 +22,14 @@ dev = [
     "httpx2>=2.13",  # cliente do TestClient
     "ruff>=0.8",
     "mypy>=1.13",
+    # Gate de segurança (docs/03-seguranca.md, ASI04)
     "pip-audit>=2.7",
+    "bandit>=1.8",
+    "detect-secrets>=1.5",
+    "zizmor>=1.20",  # auditoria de segurança dos workflows do GitHub Actions
+    # Testes de cadeia de suprimentos leem os workflows e o dependabot.yml
+    "pyyaml>=6.0",
+    "types-pyyaml>=6.0",
 ]
 
 [tool.uv]
@@ -71,6 +78,9 @@ ignore_missing_imports = true
 testpaths = ["tests"]
 pythonpath = ["scripts"]
 addopts = "-ra --strict-markers"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
 
 [tool.coverage.run]
 source = ["redacao"]

@@ -4,6 +4,32 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### TS01 · Fundação de segurança · 29/10/2026 · 🤖 Claude
+
+**Feito**
+- `docs/03-seguranca.md`: modelo de ameaças com OWASP ASI01–ASI10, AST e API Security Top 10, LGPD
+  e riscos residuais, no formato do Lead Qualifier.
+- Ciclo de 5 etapas por task (código, segurança, teste, validação e próxima tarefa) na política
+  `security/Skill_SecurityFN.md` e na skill `.claude/skills/securityfn`, com perfis de proveniência,
+  regras de confirmação, gate e formato de relatório.
+- Gate ampliado: bandit, detect-secrets e zizmor no `make check`; `terraform test` com provider
+  simulado; validação por mutação (`scripts/mutacao.py`, `security/mutacoes.toml`) no CI.
+- Testes dos controles da F0: cadeia de suprimentos e identidade do CI/CD (20), trava de rede e probes
+  fora do trace (3) e 6 testes do Terraform.
+- Plano reorganizado: coluna de segurança por task e o ciclo no lugar da "definição de pronto".
+- Relatório do gate da F0: `reports/seguranca/F0.md`.
+
+**Testado**
+- `make check`: 39 testes, 97% de cobertura, bandit, detect-secrets, pip-audit e zizmor sem achados.
+- `make tf-check`: 6 de 6 testes do Terraform. `make mutacao`: 23 de 23 mutações mortas.
+
+**Problemas encontrados**
+- A primeira versão do script de mutação contava erro de execução como falha de teste. Isso escondeu
+  que a M02 gerava um erro de sintaxe (o TOML preservou as barras invertidas). Agora erro e falha são
+  separados, e o relatório lista os testes que falharam.
+- detect-secrets marcou o nome do secret do App Insights no Terraform e no teste (falsos positivos,
+  marcados com `pragma: allowlist secret`).
+
 ### T01–T06 e T08 (código) · 29/10/2026 · 🤖 Claude
 
 **Feito**

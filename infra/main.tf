@@ -95,8 +95,9 @@ resource "azurerm_container_app" "api" {
       }
 
       env {
-        name        = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-        secret_name = "appinsights-connection-string"
+        name = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        # Nome do secret do Container App, não o valor (falso positivo do detect-secrets).
+        secret_name = "appinsights-connection-string" # pragma: allowlist secret
       }
 
       liveness_probe {
