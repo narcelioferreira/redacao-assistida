@@ -16,7 +16,7 @@ contrato, sinistro ou currículo e a arquitetura é a mesma.
 
 | Fase | Entrega | Situação |
 |---|---|---|
-| F0 · Esqueleto no ar | API mínima, Docker, CI, imagem no GHCR, Terraform, CD com OIDC | 🚧 Código pronto e validado; o deploy aguarda a conta Azure (T07) |
+| F0 · Esqueleto no ar | API mínima, Docker, CI, imagem no GHCR, Terraform, CD com OIDC | ✅ No ar: [ca-redacao-api.redwater-00b3bec9.brazilsouth.azurecontainerapps.io](https://ca-redacao-api.redwater-00b3bec9.brazilsouth.azurecontainerapps.io/docs) |
 | F1 · Uma redação | Login, modelo de dados, avaliação síncrona com Azure OpenAI | ⏳ |
 | F2 · Lotes por fila | Service Bus, worker com escala por fila, idempotência, DLQ, progresso em tempo real | ⏳ |
 | F3 · Qualidade | Avaliação contra corretores humanos (corpus Essay-BR), guardrails, experimentos | ⏳ |
