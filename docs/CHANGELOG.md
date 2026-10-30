@@ -4,6 +4,26 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### Manutenção · uv do CI e exceções de segurança · 30/10/2026 · 🤖 Claude
+
+**Feito**
+- O CI lê a versão do uv da linha `FROM` do Dockerfile, em vez de tê-la escrita à mão. Quando o
+  Dependabot atualizar a imagem do uv, o CI acompanha (teste `test_uv_do_ci_vem_do_dockerfile`,
+  mutação M26). Passou de 0.13.1 para 0.13.6, a versão da imagem.
+
+**Testado**
+- uv 0.13.6 aceita o `uv.lock` atual (`uv lock --check` e `uv sync --locked`).
+- `make check` (46 testes) e `make mutacao` (26 de 26 mortas).
+
+**Problemas encontrados**
+- As exceções de `filelock` e `certifi` (D9) ainda não podem sair: as versões corrigidas completam 14
+  dias em 31/10 16:48 UTC e 03/11 02:24 UTC. Removê-las hoje fez o uv voltar para as versões
+  vulneráveis (`certifi` 2026.7.22 e `filelock` 4.2.0), conferido e desfeito.
+
+**Pendente**
+- Remover a exceção do `filelock` a partir de 31/10 16:48 UTC e a do `certifi` a partir de 03/11
+  02:24 UTC.
+
 ### Manutenção · PRs do Dependabot · 30/10/2026 · 🤖 Claude
 
 **Feito**

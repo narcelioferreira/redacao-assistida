@@ -24,9 +24,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Versão do uv (a mesma da imagem Docker)
+        id: uv
+        # Fonte única: a linha FROM do Dockerfile, que o Dependabot atualiza com o digest. Assim o
+        # CI nunca roda um uv diferente do da imagem (achado depois do PR #3).
+        run: |
+          versao="$(sed -n 's|^FROM ghcr\.io/astral-sh/uv:\([0-9.]*\)@sha256:.*|\1|p' Dockerfile)"
+          test -n "$versao" || { echo "versão do uv não encontrada no Dockerfile"; exit 1; }
+          echo "versao=$versao" >> "$GITHUB_OUTPUT"
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
-          version: "0.13.1" # o mesmo uv da imagem Docker
+          version: ${{ steps.uv.outputs.versao }}
           enable-cache: true
       - name: Instalar dependências
         # --locked: falha se o uv.lock divergir; o uv confere o hash de cada pacote baixado.
@@ -96,9 +104,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Versão do uv (a mesma da imagem Docker)
+        id: uv
+        # Fonte única: a linha FROM do Dockerfile, que o Dependabot atualiza com o digest. Assim o
+        # CI nunca roda um uv diferente do da imagem (achado depois do PR #3).
+        run: |
+          versao="$(sed -n 's|^FROM ghcr\.io/astral-sh/uv:\([0-9.]*\)@sha256:.*|\1|p' Dockerfile)"
+          test -n "$versao" || { echo "versão do uv não encontrada no Dockerfile"; exit 1; }
+          echo "versao=$versao" >> "$GITHUB_OUTPUT"
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
-          version: "0.13.1"
+          version: ${{ steps.uv.outputs.versao }}
           enable-cache: true
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
