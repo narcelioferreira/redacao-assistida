@@ -120,8 +120,18 @@ def test_dependabot_cobre_todos_os_ecossistemas_com_espera() -> None:
 
 
 def test_credencial_federada_presa_ao_environment() -> None:
+    """D5: o subject exige o environment e os IDs imutáveis do dono e do repositório.
+
+    É o formato que o GitHub emite. O formato só com nomes (sem os IDs) faz o Azure recusar o
+    login (AADSTS700213, achado no 1º deploy) e não protege contra um repositório recriado com o
+    mesmo nome.
+    """
     bootstrap = (RAIZ / "infra" / "bootstrap" / "bootstrap.sh").read_text(encoding="utf-8")
-    assert 'SUBJECT="repo:${GITHUB_REPO}:environment:${GITHUB_ENVIRONMENT}"' in bootstrap
+    subjects = re.findall(r'^SUBJECT="([^"]+)"$', bootstrap, flags=re.MULTILINE)
+    assert subjects == [
+        "repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO#*/}@${REPO_ID}"
+        ":environment:${GITHUB_ENVIRONMENT}"
+    ]
 
 
 def test_estado_do_terraform_sem_chave_de_acesso() -> None:

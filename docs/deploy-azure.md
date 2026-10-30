@@ -98,7 +98,7 @@ terraform plan \
 
 | Sintoma | Causa provável |
 |---|---|
-| `AADSTS700213` ou `AADSTS70021` (no matching federated identity) no `terraform init` | O job não roda no environment `demo`, ou o repositório tem outro nome. O *subject* precisa ser `repo:<dono>/<repo>:environment:demo` |
+| `AADSTS700213` ou `AADSTS70021` (no matching federated identity) no `terraform init` | O *subject* cadastrado não bate com o que o GitHub envia. O formato é `repo:<dono>@<id-do-dono>/<repo>@<id-do-repo>:environment:demo` (o log do erro mostra o valor enviado). Rode o bootstrap de novo: ele recalcula e corrige a credencial |
 | 403 ao ler o estado logo depois do bootstrap | O papel `Storage Blob Data Contributor` ainda está propagando. Espere 1 a 2 minutos e rode de novo |
 | A revisão não sobe, com erro de pull da imagem | O pacote do GHCR ainda está privado (passo 4) |
 | `MissingSubscriptionRegistration` | Faltou registrar um provedor de recurso. Rode o bootstrap de novo |

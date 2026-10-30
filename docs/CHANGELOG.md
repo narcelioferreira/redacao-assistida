@@ -4,6 +4,27 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### T07 e T08 · Bootstrap do Azure e primeiro deploy · 30/10/2026 · 👥
+
+**Feito**
+- Conta Azure criada e bootstrap executado no Cloud Shell pelo Narcelio: grupos, estado remoto,
+  identidade OIDC e papéis. Variáveis cadastradas no GitHub.
+
+**Problemas encontrados**
+- 1º CD: deploy pulado, porque `AZURE_DEPLOY_ENABLED` não tinha sido cadastrada. O tradutor do
+  navegador também alterou o valor de `TFSTATE_STORAGE_ACCOUNT` na tela; corrigido à mão.
+- 2º CD: o `terraform init` falhou com `AADSTS700213`. O GitHub emite o *subject* do token OIDC com os
+  IDs imutáveis do dono e do repositório (`repo:narcelioferreira@219730014/redacao-assistida@1438882016:environment:demo`),
+  e o bootstrap cadastrava o formato só com nomes. Corrigido: o bootstrap busca os IDs na API do
+  GitHub e corrige uma credencial antiga no lugar. Teste atualizado e nova mutação (M24).
+
+**Testado**
+- 3º CD: `terraform apply` criou o ambiente no Azure e o smoke test confirmou a versão no ar
+  (`2ac62dc`). **Critério de aceite da F0 cumprido.** API: https://ca-redacao-api.redwater-00b3bec9.brazilsouth.azurecontainerapps.io/docs
+- Correção do subject: `make check`, `make tf-check` e `make mutacao` (24 de 24 mortas).
+- Não foi possível acessar a URL a partir da sessão do Claude (proxy); a verificação é a do smoke
+  test do CD e a conferência do Narcelio no navegador.
+
 ### TS01 · Fundação de segurança · 29/10/2026 · 🤖 Claude
 
 **Feito**
