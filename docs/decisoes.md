@@ -34,6 +34,10 @@ O GitHub emite um token OIDC por execução, e o Entra ID troca esse token por u
 credencial federada só aceita jobs do environment `demo` deste repositório. Não existe client secret
 para vazar ou expirar. Os IDs cadastrados como variáveis não são segredos.
 
+O *subject* aceito usa os IDs imutáveis do dono e do repositório
+(`repo:dono@ID/repo@ID:environment:demo`), que é o formato emitido pelo GitHub. Se o repositório for
+apagado e alguém criar outro com o mesmo nome, o ID muda e o Azure recusa o token.
+
 ## D6 · Um ambiente só (demo), mais o local
 
 Para uma PoC, um ambiente de staging dobraria o custo e o trabalho sem trazer aprendizado novo. Os

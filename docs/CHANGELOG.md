@@ -4,6 +4,20 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### T07 · Bootstrap do Azure (em andamento) · 30/10/2026 · 👥
+
+**Feito**
+- Conta Azure criada e bootstrap executado no Cloud Shell pelo Narcelio: grupos, estado remoto,
+  identidade OIDC e papéis. Variáveis cadastradas no GitHub.
+
+**Problemas encontrados**
+- 1º CD: deploy pulado, porque `AZURE_DEPLOY_ENABLED` não tinha sido cadastrada. O tradutor do
+  navegador também alterou o valor de `TFSTATE_STORAGE_ACCOUNT` na tela; corrigido à mão.
+- 2º CD: o `terraform init` falhou com `AADSTS700213`. O GitHub emite o *subject* do token OIDC com os
+  IDs imutáveis do dono e do repositório (`repo:narcelioferreira@219730014/redacao-assistida@1438882016:environment:demo`),
+  e o bootstrap cadastrava o formato só com nomes. Corrigido: o bootstrap busca os IDs na API do
+  GitHub e corrige uma credencial antiga no lugar. Teste atualizado e nova mutação (M24).
+
 ### TS01 · Fundação de segurança · 29/10/2026 · 🤖 Claude
 
 **Feito**
