@@ -120,3 +120,6 @@ os três, mais gitleaks e o build com smoke test da imagem.
 ## Commits
 
 `tipo(Txx): descrição` em português, ex.: `feat(T22): criação de lote com Idempotency-Key`.
+
+Sem trailer `Co-Authored-By` nem link de sessão: a assistência do Claude é registrada uma única vez,
+no README (decisão do Narcelio).

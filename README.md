@@ -157,6 +157,8 @@ docs/              visão, arquitetura, plano, segurança, decisões, deploy e c
 
 ## Licença e créditos
 
+Projeto desenvolvido com assistência do Claude (Anthropic).
+
 Código sob licença MIT. A avaliação (F3) usa o corpus
 [Essay-BR](https://github.com/lplnufpi/essay-br) (licença MIT), baixado por script e não versionado:
 MARINHO, J. C.; ANCHIÊTA, R. T.; MOURA, R. S. *Essay-BR: a Brazilian Corpus to Automatic Essay

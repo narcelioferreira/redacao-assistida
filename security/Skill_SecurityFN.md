@@ -207,8 +207,8 @@ nesta ordem. Elas correspondem ao fluxo de execução da Parte I.
 
 ## II.2 · Proveniência neste projeto
 
-A proveniência segue o dono da task (`CLAUDE.md`), conferida contra o histórico do Git (trailer
-`Co-Authored-By` dos commits), como pede a Parte I:
+A proveniência segue o dono da task (`CLAUDE.md`), conferida contra o histórico do Git e o
+CHANGELOG (que registra quem escreveu cada task), como pede a Parte I:
 
 | Dono | Proveniência esperada | Observação |
 |---|---|---|
