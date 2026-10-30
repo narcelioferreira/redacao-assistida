@@ -4,6 +4,22 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### Manutenção · PRs do Dependabot · 30/10/2026 · 🤖 Claude
+
+**Feito**
+- `scripts/mutacao.py` aceita `regex = true`. M06, M12 e M13 deixaram de depender do SHA ou do digest
+  exatos: a próxima atualização de action ou de imagem não quebra mais a mutação.
+- Dependabot propõe só patches da imagem do Python 3.12 (regra `ignore` testada, mutação M25).
+
+**Testado**
+- `make check` (43 testes) e `make mutacao` (25 de 25 mortas).
+
+**Problemas encontrados**
+- PR #3 (uv 0.13.6): o build e o smoke test passaram, mas a mutação M13 falhou porque procurava a linha
+  literal com o digest antigo. O controle estava certo; a mutação é que era frágil.
+- PR #2 (Python 3.15): o build falhou porque o projeto exige Python abaixo de 3.14. A troca de versão
+  do Python não é atualização de rotina.
+
 ### T07 e T08 · Bootstrap do Azure e primeiro deploy · 30/10/2026 · 👥
 
 **Feito**

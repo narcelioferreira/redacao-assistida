@@ -29,5 +29,6 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M21 | ASI08 · D10 | Log Analytics sem teto diário | `logs_com_destino_e_teto` | ✅ morta |
 | M22 | ASI08 · D3 | Smoke test aceita qualquer versão no ar | `test_recusa_quando_a_revisao_no_ar_e_outra` | ✅ morta |
 | M23 | ASI02 | Smoke test aceita esquema file:// | `test_recusa_esquema_que_nao_e_http` | ✅ morta |
+| M25 | ASI04 | Dependabot propõe troca de versão do Python (3.12 → 3.x) | `test_dependabot_cobre_todos_os_ecossistemas_com_espera` | ✅ morta |
 
-**24 de 24 mutações mortas.**
+**25 de 25 mutações mortas.**
