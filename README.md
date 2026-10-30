@@ -92,7 +92,7 @@ Os controles seguem o OWASP Top 10 for Agentic Applications 2026 (ASI01–ASI10)
 complementar ao OWASP Agentic Skills Top 10 (AST, em revisão pública) e ao OWASP API Security Top 10.
 Cada controle implementado tem um teste que o comprova e foi validado por mutação: com a proteção
 desligada de propósito, os testes falham. O CI roda as mutações a cada PR
-(**23 de 23 mortas**, [relatório](reports/seguranca/mutacao.md)).
+(**25 de 25 mortas**, [relatório](reports/seguranca/mutacao.md)).
 
 O modelo de ameaças, os testes por controle, os mapeamentos complementares e os riscos residuais estão
 em [docs/03-seguranca.md](docs/03-seguranca.md).

@@ -117,6 +117,15 @@ def test_dependabot_cobre_todos_os_ecossistemas_com_espera() -> None:
     assert set(por_ecossistema) == {"uv", "github-actions", "docker", "terraform"}
     for ecossistema in ("github-actions", "terraform"):
         assert por_ecossistema[ecossistema]["cooldown"]["default-days"] >= 14
+    # A versão do Python (3.12) só muda por decisão de projeto: o Dependabot propõe só patches.
+    ignorados = {
+        regra["dependency-name"]: set(regra["update-types"])
+        for regra in por_ecossistema["docker"].get("ignore", [])
+    }
+    assert ignorados.get("python") == {
+        "version-update:semver-major",
+        "version-update:semver-minor",
+    }
 
 
 def test_credencial_federada_presa_ao_environment() -> None:
