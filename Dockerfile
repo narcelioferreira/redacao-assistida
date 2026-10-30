@@ -3,7 +3,7 @@
 
 FROM ghcr.io/astral-sh/uv:0.13.1@sha256:4a1f3666816dafadd20ceb71eac9a7d56d7ef30279f7d64048519ab901ada336 AS uv
 
-FROM python:3.12.16-slim-trixie@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 AS build
+FROM python:3.15.0-slim-trixie@sha256:f5b92f2a669a4c347044f29367f31983280b648250ca94dea66f98c53bc87e58 AS build
 COPY --from=uv /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -18,7 +18,7 @@ COPY src ./src
 # --no-editable: o pacote vai para dentro do .venv, e a imagem final não precisa do código-fonte.
 RUN uv sync --locked --no-dev --no-editable
 
-FROM python:3.12.16-slim-trixie@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+FROM python:3.15.0-slim-trixie@sha256:f5b92f2a669a4c347044f29367f31983280b648250ca94dea66f98c53bc87e58
 # Usuário sem privilégio e nenhum binário setuid/setgid: dentro do container não sobra caminho de
 # escalada, mesmo onde o runtime não aplica `no-new-privileges`.
 RUN useradd --system --uid 10001 --no-create-home app \
