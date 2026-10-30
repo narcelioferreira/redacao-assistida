@@ -34,6 +34,9 @@ class Mutacao:
     de: str
     para: str
     comando: str
+    # Com `regex`, `de` é uma expressão regular e `para` pode usar grupos (\\1). Use para trechos
+    # com versão ou hash: assim o PR do Dependabot que atualiza a versão não quebra a mutação.
+    regex: bool = False
 
 
 @dataclass(frozen=True)
@@ -67,16 +70,27 @@ def testes_que_falharam(comando: str, saida: str) -> tuple[str, ...]:
     return tuple(re.findall(r'^\s+run "([^"]+)"\.\.\. fail', saida, flags=re.MULTILINE))
 
 
+def trocar(texto: str, m: Mutacao) -> str:
+    """Aplica a mutação ao texto. O trecho precisa aparecer exatamente uma vez."""
+    if m.regex:
+        mutado, ocorrencias = re.subn(m.de, m.para, texto, flags=re.MULTILINE)
+    else:
+        ocorrencias = texto.count(m.de)
+        mutado = texto.replace(m.de, m.para)
+    if ocorrencias != 1:
+        raise ValueError(
+            f"{m.id}: o trecho precisa aparecer 1 vez em {m.arquivo}, aparece {ocorrencias}"
+        )
+    return mutado
+
+
 def aplicar(m: Mutacao) -> Resultado:
     alvo = RAIZ / m.arquivo
     original = alvo.read_bytes()
     texto = original.decode("utf-8")
-    if texto.count(m.de) != 1:
-        raise ValueError(
-            f"{m.id}: o trecho precisa aparecer 1 vez em {m.arquivo}, aparece {texto.count(m.de)}"
-        )
+    mutado = trocar(texto, m)
     try:
-        alvo.write_text(texto.replace(m.de, m.para), encoding="utf-8")
+        alvo.write_text(mutado, encoding="utf-8")
         processo = subprocess.run(  # noqa: S603  # nosec B603
             COMANDOS[m.comando], cwd=RAIZ, capture_output=True, text=True, timeout=600, check=False
         )

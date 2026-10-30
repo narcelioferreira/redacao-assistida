@@ -44,8 +44,8 @@ que a versão no ar é a do commit.
 | T05 | CD, parte 1: imagem no GHCR a cada push na `main`, com tag do SHA, SBOM e proveniência. Aceite: `ghcr.io/narcelioferreira/redacao-assistida:<sha>` publicada | 🤖 | ASI04 | 0,25 | 0,1 | 🚧 roda no 1º merge |
 | T06 | Terraform: Log Analytics com teto diário, App Insights, ambiente e Container App da API com escala a zero, orçamento com alertas. Aceite: `terraform validate` e `terraform test` no CI | 🤖 | ASI03, ASI08 | 0,25 | 0,1 | ✅ |
 | TS01 | Fundação de segurança: `docs/03-seguranca.md` (ASI, AST e API Top 10), skill SecurityFN e política, gate com bandit, detect-secrets e zizmor, testes dos controles da F0 e validação por mutação no CI. Aceite: todas as mutações mortas | 🤖 | ASI03, ASI04, ASI08 | 0,5 | 0,3 | ✅ |
-| T07 | Bootstrap do Azure: conta, provedores, estado remoto, identidade OIDC, papéis e variáveis no GitHub (`docs/deploy-azure.md`). Aceite: o CD autentica no Azure sem segredo | 👥 | ASI03 | 0,25 | | ⏳ depende da conta |
-| T08 | CD, parte 2: `terraform apply` e smoke test (versão no ar = SHA). Aceite: o aceite da fase | 🤖 | ASI03, ASI04 | 0,25 | 0,1 | 🚧 código pronto; roda após a T07 |
+| T07 | Bootstrap do Azure: conta, provedores, estado remoto, identidade OIDC, papéis e variáveis no GitHub (`docs/deploy-azure.md`). Aceite: o CD autentica no Azure sem segredo | 👥 | ASI03 | 0,25 | 1 | ✅ |
+| T08 | CD, parte 2: `terraform apply` e smoke test (versão no ar = SHA). Aceite: o aceite da fase | 🤖 | ASI03, ASI04 | 0,25 | 0,1 | ✅ |
 | T09 | Refinar as histórias de usuário de `docs/00-visao.md` (rotina real do professor e do coordenador). Aceite: HU01–HU08 com critérios revisados | 👥 | — | 0,25 | | ⏳ |
 
 ## F1 · Uma redação (estimativa: 3 d)
