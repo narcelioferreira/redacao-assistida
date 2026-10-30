@@ -1,6 +1,8 @@
 # Mutações dos controles de segurança (scripts/mutacao.py · docs/03-seguranca.md).
-# Cada entrada desliga um controle trocando um trecho exato do arquivo; os testes do `comando`
-# precisam falhar. Toda task que cria um controle acrescenta a sua mutação aqui.
+# Cada entrada desliga um controle trocando um trecho do arquivo; os testes do `comando` precisam
+# falhar. Toda task que cria um controle acrescenta a sua mutação aqui.
+# Trecho com versão, SHA ou digest usa `regex = true`: senão, cada PR do Dependabot quebraria a
+# mutação (achado no PR #3).
 
 # --- ASI03 · Identidade e privilégio ---------------------------------------------------------
 
@@ -54,14 +56,9 @@ id = "M06"
 controle = "ASI03"
 descricao = "Checkout guarda a credencial do GitHub"
 arquivo = ".github/workflows/cd.yml"
-de = """    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: docker/setup-buildx-action"""
-para = """    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: docker/setup-buildx-action"""
+de = '(      - uses: actions/checkout@[0-9a-f]{40} # v[\d.]+\n)        with:\n          persist-credentials: false\n(      - uses: docker/setup-buildx-action)'
+para = '\1\2'
+regex = true
 comando = "pytest"
 
 [[mutacao]]
@@ -78,8 +75,17 @@ id = "M08"
 controle = "ASI03"
 descricao = "Credencial federada aceita qualquer branch do repositório"
 arquivo = "infra/bootstrap/bootstrap.sh"
-de = 'SUBJECT="repo:${GITHUB_REPO}:environment:${GITHUB_ENVIRONMENT}"'
-para = 'SUBJECT="repo:${GITHUB_REPO}:ref:refs/heads/*"'
+de = 'SUBJECT="repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO#*/}@${REPO_ID}:environment:${GITHUB_ENVIRONMENT}"'
+para = 'SUBJECT="repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO#*/}@${REPO_ID}:ref:refs/heads/*"'
+comando = "pytest"
+
+[[mutacao]]
+id = "M24"
+controle = "ASI03"
+descricao = "Credencial federada sem os IDs imutáveis (aceitaria um repositório recriado com o mesmo nome)"
+arquivo = "infra/bootstrap/bootstrap.sh"
+de = 'SUBJECT="repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO#*/}@${REPO_ID}:environment:${GITHUB_ENVIRONMENT}"'
+para = 'SUBJECT="repo:${GITHUB_REPO}:environment:${GITHUB_ENVIRONMENT}"'
 comando = "pytest"
 
 [[mutacao]]
@@ -116,8 +122,9 @@ id = "M12"
 controle = "ASI04 · AST02"
 descricao = "Action fixada por tag em vez de SHA"
 arquivo = ".github/workflows/ci.yml"
-de = "      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0"
-para = "      - uses: gitleaks/gitleaks-action@v3"
+de = 'uses: gitleaks/gitleaks-action@[0-9a-f]{40} # v[\d.]+'
+para = 'uses: gitleaks/gitleaks-action@v3'
+regex = true
 comando = "pytest"
 
 [[mutacao]]
@@ -125,8 +132,9 @@ id = "M13"
 controle = "ASI04 · AST07"
 descricao = "Imagem base sem digest"
 arquivo = "Dockerfile"
-de = "FROM ghcr.io/astral-sh/uv:0.13.1@sha256:4a1f3666816dafadd20ceb71eac9a7d56d7ef30279f7d64048519ab901ada336 AS uv"
-para = "FROM ghcr.io/astral-sh/uv:0.13.1 AS uv"
+de = '(FROM ghcr\.io/astral-sh/uv:[\d.]+)@sha256:[0-9a-f]{64}( AS uv)'
+para = '\1\2'
+regex = true
 comando = "pytest"
 
 [[mutacao]]
@@ -222,4 +230,13 @@ descricao = "Smoke test aceita esquema file://"
 arquivo = "scripts/smoke.py"
 de = '    if urlparse(base_url).scheme not in {"http", "https"}:'
 para = "    if False:"
+comando = "pytest"
+
+[[mutacao]]
+id = "M25"
+controle = "ASI04"
+descricao = "Dependabot propõe troca de versão do Python (3.12 → 3.x)"
+arquivo = ".github/dependabot.yml"
+de = '        update-types: ["version-update:semver-major", "version-update:semver-minor"]'
+para = '        update-types: ["version-update:semver-major"]'
 comando = "pytest"

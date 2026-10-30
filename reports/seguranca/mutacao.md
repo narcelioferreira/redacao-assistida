@@ -13,6 +13,7 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M06 | ASI03 | Checkout guarda a credencial do GitHub | `test_checkout_nao_guarda_credencial[cd.yml]` | ✅ morta |
 | M07 | ASI03 | Deploy fora do environment demo | `test_token_oidc_so_no_job_de_deploy_e_no_environment_demo` | ✅ morta |
 | M08 | ASI03 | Credencial federada aceita qualquer branch do repositório | `test_credencial_federada_presa_ao_environment` | ✅ morta |
+| M24 | ASI03 | Credencial federada sem os IDs imutáveis (aceitaria um repositório recriado com o mesmo nome) | `test_credencial_federada_presa_ao_environment` | ✅ morta |
 | M09 | ASI03 | Identidade do CD com Contributor na assinatura inteira | `test_papeis_do_cd_restritos_ao_projeto` | ✅ morta |
 | M10 | ASI03 | Estado do Terraform aceita chave de acesso | `test_estado_do_terraform_sem_chave_de_acesso` | ✅ morta |
 | M11 | ASI03 | Connection string como valor literal no container | `connection_string_como_secret` | ✅ morta |
@@ -28,5 +29,6 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M21 | ASI08 · D10 | Log Analytics sem teto diário | `logs_com_destino_e_teto` | ✅ morta |
 | M22 | ASI08 · D3 | Smoke test aceita qualquer versão no ar | `test_recusa_quando_a_revisao_no_ar_e_outra` | ✅ morta |
 | M23 | ASI02 | Smoke test aceita esquema file:// | `test_recusa_esquema_que_nao_e_http` | ✅ morta |
+| M25 | ASI04 | Dependabot propõe troca de versão do Python (3.12 → 3.x) | `test_dependabot_cobre_todos_os_ecossistemas_com_espera` | ✅ morta |
 
-**23 de 23 mutações mortas.**
+**25 de 25 mutações mortas.**

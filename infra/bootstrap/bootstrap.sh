@@ -68,16 +68,30 @@ fi
 SP_OBJECT_ID="$(az ad sp show --id "$APP_ID" --query id -o tsv)"
 # Só jobs do environment "demo" deste repositório conseguem trocar o token do GitHub por um
 # token do Azure. Um fork ou outro workflow recebe um "subject" diferente e é recusado.
-SUBJECT="repo:${GITHUB_REPO}:environment:${GITHUB_ENVIRONMENT}"
-if [ -z "$(az ad app federated-credential list --id "$APP_ID" \
-  --query "[?subject=='${SUBJECT}'].name" -o tsv)" ]; then
-  az ad app federated-credential create --id "$APP_ID" --output none --parameters "{
-    \"name\": \"github-${GITHUB_ENVIRONMENT}\",
-    \"issuer\": \"https://token.actions.githubusercontent.com\",
-    \"subject\": \"${SUBJECT}\",
-    \"audiences\": [\"api://AzureADTokenExchange\"]
-  }"
+# O GitHub emite o subject com os IDs imutáveis do dono e do repositório
+# (repo:dono@ID/repo@ID:...). Se o repositório for apagado e alguém criar outro com o mesmo nome,
+# o ID muda e o Azure recusa: mais seguro do que o formato só com nomes.
+REPO_JSON="$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}")"
+REPO_ID="$(jq -r '.id' <<<"$REPO_JSON")"
+OWNER_ID="$(jq -r '.owner.id' <<<"$REPO_JSON")"
+SUBJECT="repo:${GITHUB_REPO%%/*}@${OWNER_ID}/${GITHUB_REPO#*/}@${REPO_ID}:environment:${GITHUB_ENVIRONMENT}"
+CREDENTIAL_NAME="github-${GITHUB_ENVIRONMENT}"
+CREDENTIAL="{
+  \"name\": \"${CREDENTIAL_NAME}\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"${SUBJECT}\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}"
+CURRENT_SUBJECT="$(az ad app federated-credential list --id "$APP_ID" \
+  --query "[?name=='${CREDENTIAL_NAME}'].subject" -o tsv)"
+if [ -z "$CURRENT_SUBJECT" ]; then
+  az ad app federated-credential create --id "$APP_ID" --output none --parameters "$CREDENTIAL"
+elif [ "$CURRENT_SUBJECT" != "$SUBJECT" ]; then
+  # Credencial de uma execução anterior com outro subject: corrige no lugar.
+  az ad app federated-credential update --id "$APP_ID" \
+    --federated-credential-id "$CREDENTIAL_NAME" --output none --parameters "$CREDENTIAL"
 fi
+echo "   subject aceito: $SUBJECT"
 
 echo "5/5 Papéis (menor privilégio)"
 assign() { # papel escopo object-id tipo
