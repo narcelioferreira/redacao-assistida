@@ -202,7 +202,7 @@ nesta ordem. Elas correspondem ao fluxo de execução da Parte I.
 | 1 | **Código** | 1, 2, 3 | Escopo, proveniência e plano declarados antes de mexer. Implementação pelo dono da task. Em tasks 👤, os casos de teste são combinados em texto **antes** do código | Diff completo e casos de teste |
 | 2 | **Segurança** | 4, 5, 7 | Revisão do diff completo com o checklist de II.4. Cada controle novo ganha teste e mutação em `security/mutacoes.toml`. `docs/03-seguranca.md` é atualizado | Achados classificados e tratados |
 | 3 | **Teste** | 6, 8 | `make check`, `make tf-check` e `make mutacao`, localmente e no CI | Saída real dos comandos |
-| 4 | **Validação** | 8, 9 | Critério de aceite conferido de verdade (no Azure, quando a task chega lá); o autor responde às perguntas de revisão; CHANGELOG atualizado | Relatório com a decisão do gate |
+| 4 | **Validação** | 8, 9 | Critério de aceite conferido de verdade (no Azure, quando a task chega lá); CHANGELOG atualizado | Relatório com a decisão do gate |
 | 5 | **Próxima tarefa** | — | Coluna "Real" do plano preenchida; próxima task e seu dono apontados; riscos novos registrados | Plano atualizado |
 
 ## II.2 · Proveniência neste projeto
@@ -216,9 +216,11 @@ CHANGELOG (que registra quem escreveu cada task), como pede a Parte I:
 | 🤖 Claude escreve | `IA_ASSISTIDO` | Sempre, sem exceção |
 | 👥 Juntos | `HÍBRIDO` | Verificações de IA nas partes influenciadas por IA |
 
-Além das verificações de IA da Parte I, as tasks `IA_ASSISTIDO` e `HÍBRIDO` exigem aqui:
-- de 3 a 5 perguntas de revisão, que o Narcelio responde antes do merge;
-- mutação para todo controle novo: um teste que não consegue falhar não comprova nada.
+Além das verificações de IA da Parte I, as tasks `IA_ASSISTIDO` e `HÍBRIDO` exigem aqui mutação para
+todo controle novo: um teste que não consegue falhar não comprova nada.
+
+As perguntas de estudo sobre o diff são entregues só na conversa, como material de estudo do Narcelio:
+não entram no repositório, no relatório nem no gate.
 
 ## II.3 · Exceção formal às regras de confirmação
 
@@ -259,12 +261,12 @@ Os quatro estados da Parte I (passo 9), com o que cada um significa aqui:
 
 | Decisão | Neste projeto |
 |---|---|
-| **Aprovado** | `make check`, `make tf-check` e `make mutacao` verdes, no CI inclusive; critério de aceite verificado; nenhum achado aberto; perguntas de revisão respondidas |
+| **Aprovado** | `make check`, `make tf-check` e `make mutacao` verdes, no CI inclusive; critério de aceite verificado; nenhum achado aberto |
 | **Aprovado com ressalvas** | Como acima, com risco residual registrado em `docs/03-seguranca.md` (seção 7), responsável e prazo (task) |
 | **Bloqueado** | Verificação vermelha, mutação sobrevivente, segredo exposto, controle sem teste, achado crítico ou alto aberto, ou falta a aprovação do Narcelio onde ela é obrigatória |
-| **Não conclusivo** | Etapas locais verdes, mas falta evidência que só o ambiente real ou o Narcelio produzem: o CI no GitHub, o critério de aceite no Azure, as respostas às perguntas de revisão. Não vai para a `main` nesse estado |
+| **Não conclusivo** | Etapas locais verdes, mas falta evidência que só o ambiente real ou o Narcelio produzem: o CI no GitHub, o critério de aceite no Azure, uma aprovação obrigatória. Não vai para a `main` nesse estado |
 
 ## II.6 · Relatório
 
-Formato obrigatório da Parte I, em `reports/seguranca/<task ou fase>.md`, com dois acréscimos ao
-fim: **Perguntas de revisão** (tasks `IA_ASSISTIDO` e `HÍBRIDO`) e **Próxima tarefa** (ID e dono).
+Formato obrigatório da Parte I, em `reports/seguranca/<task ou fase>.md`, com um acréscimo ao fim:
+**Próxima tarefa** (ID e dono).

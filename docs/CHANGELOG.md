@@ -73,6 +73,12 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
   (`exclude-newer-package`), que deve ser removida em 31/10 (filelock) e 03/11 (certifi). O critério
   foi registrado na D9.
 
+**Validado no GitHub (30/10/2026)**
+- CI do PR #1 com os 5 jobs verdes, nos commits assinados (Verified) e sem coautoria.
+- `main` protegida por ruleset (sem exclusão nem force push, commits assinados, PR com squash, 5 checks
+  obrigatórios, sem bypass) e environment `demo` restrito à `main`. Configurados pelo Narcelio.
+- Gate da F0: **Aprovado com ressalvas** (`reports/seguranca/F0.md`).
+
 **Pendente**
-- T07 (bootstrap no Azure) e as primeiras execuções do CI e do CD no GitHub.
+- T07 (bootstrap no Azure) e a primeira execução do CD.
 - Remover as exceções de `certifi` e `filelock` do `pyproject.toml` a partir de 03/11/2026.

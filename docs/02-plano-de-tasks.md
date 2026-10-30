@@ -4,7 +4,7 @@ Cada fase termina em produção. Estimativas em dias de trabalho; anote o tempo 
 porque "estimei 3 dias, levou 5, e o motivo foi X" é a conversa de estimativa que as vagas pedem.
 
 **Donos** (combinado em `CLAUDE.md`): 👤 Narcelio escreve, Claude revisa · 🤖 Claude escreve,
-Narcelio revisa e responde às perguntas de revisão · 👥 Narcelio decide, os dois executam.
+Narcelio revisa · 👥 Narcelio decide, os dois executam.
 
 **Situação:** ✅ pronta · 🚧 em andamento · ⏳ a fazer
 
@@ -23,7 +23,7 @@ nesta ordem:
    `security/mutacoes.toml`; `docs/03-seguranca.md` atualizado.
 3. **Teste.** `make check`, `make tf-check` e `make mutacao` verdes, localmente e no CI.
 4. **Validação.** Critério de aceite conferido de verdade (no Azure, quando a task chega lá),
-   perguntas de revisão respondidas, CHANGELOG atualizado e relatório em `reports/seguranca/` com a
+   CHANGELOG atualizado e relatório em `reports/seguranca/` com a
    decisão do gate: Aprovado, Aprovado com ressalvas, Bloqueado ou Não conclusivo.
 5. **Próxima tarefa.** Coluna "Real" preenchida e próxima task apontada, com o dono.
 
@@ -40,7 +40,7 @@ que a versão no ar é a do commit.
 | T01 | Estrutura do repo: pyproject com uv (regra dos 14 dias), ruff, mypy strict, pytest com trava de rede, Makefile, `CLAUDE.md`. Aceite: `make check` verde | 🤖 | ASI04, ASI08 | 0,25 | 0,1 | ✅ |
 | T02 | API mínima: fábrica, `/health/live` com a versão, `/health/ready`, erros RFC 9457 com `trace_id`, cabeçalhos de segurança, OpenAPI. Aceite: testes de 404, 405, 409, 422 (sem ecoar o valor) e 500 (sem vazar detalhe) | 🤖 | ASI03, API8 | 0,25 | 0,1 | ✅ |
 | T03 | Dockerfile multi-stage (digest, usuário 10001, sem setuid, healthcheck) e compose. Aceite: container só leitura e sem capabilities passa no smoke test | 🤖 | ASI03, ASI04 | 0,25 | 0,1 | ✅ |
-| T04 | CI: lint, tipos, testes, gate de segurança, build e smoke test da imagem, validação e testes do Terraform. Aceite: primeiro PR verde | 🤖 | ASI04 | 0,25 | 0,1 | 🚧 validado localmente; falta o 1º PR |
+| T04 | CI: lint, tipos, testes, gate de segurança, build e smoke test da imagem, validação e testes do Terraform. Aceite: primeiro PR verde | 🤖 | ASI04 | 0,25 | 0,1 | ✅ PR #1 com os 5 jobs verdes |
 | T05 | CD, parte 1: imagem no GHCR a cada push na `main`, com tag do SHA, SBOM e proveniência. Aceite: `ghcr.io/narcelioferreira/redacao-assistida:<sha>` publicada | 🤖 | ASI04 | 0,25 | 0,1 | 🚧 roda no 1º merge |
 | T06 | Terraform: Log Analytics com teto diário, App Insights, ambiente e Container App da API com escala a zero, orçamento com alertas. Aceite: `terraform validate` e `terraform test` no CI | 🤖 | ASI03, ASI08 | 0,25 | 0,1 | ✅ |
 | TS01 | Fundação de segurança: `docs/03-seguranca.md` (ASI, AST e API Top 10), skill SecurityFN e política, gate com bandit, detect-secrets e zizmor, testes dos controles da F0 e validação por mutação no CI. Aceite: todas as mutações mortas | 🤖 | ASI03, ASI04, ASI08 | 0,5 | 0,3 | ✅ |

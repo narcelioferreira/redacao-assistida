@@ -20,8 +20,9 @@ Cada task de `docs/02-plano-de-tasks.md` tem um dono:
   pedir explicitamente que Claude escreva uma parte 👤, lembre o combinado uma vez, siga a decisão
   dele e registre a exceção no CHANGELOG.
 - **🤖 Claude escreve.** Infra e boilerplate: Terraform, CI/CD, Docker, front, clientes de SDK,
-  scripts. Ao terminar, liste de 3 a 5 perguntas de revisão sobre o diff. A task só fecha quando o
-  Narcelio souber respondê-las.
+  scripts. Ao terminar, entregue de 3 a 5 perguntas de estudo sobre o diff, **só na conversa**:
+  elas não vão para o repositório nem bloqueiam a task (decisão do Narcelio). O conteúdo de estudo é
+  entregue à parte, num documento fora do repositório.
 - **👥 Juntos.** O Narcelio decide (modelo de dados, histórias, conclusões dos experimentos) e Claude
   ajuda a executar.
 
