@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Actions fixadas por SHA de commit (imutável), não por tag móvel (OWASP ASI04 / AST02, decisão D9).
+# O Dependabot propõe as atualizações.
+jobs:
+  python:
+    name: Lint, tipos, testes e dependências
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1" # o mesmo uv da imagem Docker
+          enable-cache: true
+      - name: Instalar dependências
+        # --locked: falha se o uv.lock divergir; o uv confere o hash de cada pacote baixado.
+        run: uv sync --locked
+      - name: Lint, tipos, testes e vulnerabilidades conhecidas
+        run: make check
+
+  segredos:
+    name: Segredos no histórico
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  imagem:
+    name: Imagem Docker (build e smoke test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build
+        run: docker build -t redacao-assistida:ci .
+      - name: Smoke test no container (a mesma checagem do CD)
+        # Mesmas restrições do Azure: sistema de arquivos só de leitura e nenhuma capability.
+        run: |
+          docker run -d --name api -p 127.0.0.1:8000:8000 \
+            -e APP_ENV=ci -e GIT_SHA="$GITHUB_SHA" \
+            --read-only --tmpfs /tmp --cap-drop ALL redacao-assistida:ci
+          python3 scripts/smoke.py http://127.0.0.1:8000 --versao "$GITHUB_SHA" --timeout 60 \
+            || { docker logs api; exit 1; }
+
+  terraform:
+    name: Terraform (formato e validação)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.16.6"
+          terraform_wrapper: false
+      - run: terraform fmt -check -recursive
+      # Sem backend: valida a configuração sem precisar de credencial do Azure.
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+      # Provider simulado (mock_provider): testa o plano sem credencial.
+      - run: terraform test
+
+  mutacao:
+    name: Validação por mutação dos controles de segurança
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: "1.16.6"
+          terraform_wrapper: false
+      - run: uv sync --locked
+      - run: terraform -chdir=infra init -backend=false -input=false
+      - name: Cada controle desligado derruba pelo menos um teste
+        run: python3 scripts/mutacao.py --relatorio "$GITHUB_STEP_SUMMARY"

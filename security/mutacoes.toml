@@ -1,0 +1,225 @@
+# Mutações dos controles de segurança (scripts/mutacao.py · docs/03-seguranca.md).
+# Cada entrada desliga um controle trocando um trecho exato do arquivo; os testes do `comando`
+# precisam falhar. Toda task que cria um controle acrescenta a sua mutação aqui.
+
+# --- ASI03 · Identidade e privilégio ---------------------------------------------------------
+
+[[mutacao]]
+id = "M01"
+controle = "ASI03"
+descricao = "Erro 500 devolve a mensagem da exceção"
+arquivo = "src/redacao/api/problems.py"
+de = "    return problem_response(request, 500)"
+para = "    return problem_response(request, 500, str(exc))"
+comando = "pytest"
+
+[[mutacao]]
+id = "M02"
+controle = "ASI03 · LGPD"
+descricao = "Erro 422 ecoa o valor enviado"
+arquivo = "src/redacao/api/problems.py"
+de = '            mensagem=error["msg"],'
+para = "            mensagem=f'{error[\"msg\"]}: {error.get(\"input\")}',"
+comando = "pytest"
+
+[[mutacao]]
+id = "M03"
+controle = "ASI03"
+descricao = "Connection string como texto comum (sem SecretStr)"
+arquivo = "src/redacao/config.py"
+de = "    applicationinsights_connection_string: SecretStr | None = None"
+para = "    applicationinsights_connection_string: str | None = None"
+comando = "pytest"
+
+[[mutacao]]
+id = "M04"
+controle = "ASI03"
+descricao = "Respostas sem cabeçalhos de segurança"
+arquivo = "src/redacao/api/app.py"
+de = "        response.headers.update(SECURITY_HEADERS)"
+para = "        response.headers.update({})"
+comando = "pytest"
+
+[[mutacao]]
+id = "M05"
+controle = "ASI03"
+descricao = "Container roda como root"
+arquivo = "Dockerfile"
+de = "USER 10001"
+para = "USER root"
+comando = "pytest"
+
+[[mutacao]]
+id = "M06"
+controle = "ASI03"
+descricao = "Checkout guarda a credencial do GitHub"
+arquivo = ".github/workflows/cd.yml"
+de = """    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: docker/setup-buildx-action"""
+para = """    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action"""
+comando = "pytest"
+
+[[mutacao]]
+id = "M07"
+controle = "ASI03"
+descricao = "Deploy fora do environment demo"
+arquivo = ".github/workflows/cd.yml"
+de = "    environment: demo\n"
+para = ""
+comando = "pytest"
+
+[[mutacao]]
+id = "M08"
+controle = "ASI03"
+descricao = "Credencial federada aceita qualquer branch do repositório"
+arquivo = "infra/bootstrap/bootstrap.sh"
+de = 'SUBJECT="repo:${GITHUB_REPO}:environment:${GITHUB_ENVIRONMENT}"'
+para = 'SUBJECT="repo:${GITHUB_REPO}:ref:refs/heads/*"'
+comando = "pytest"
+
+[[mutacao]]
+id = "M09"
+controle = "ASI03"
+descricao = "Identidade do CD com Contributor na assinatura inteira"
+arquivo = "infra/bootstrap/bootstrap.sh"
+de = 'assign "Contributor" "$APP_RG_ID" "$SP_OBJECT_ID" ServicePrincipal'
+para = 'assign "Contributor" "/subscriptions/$SUBSCRIPTION_ID" "$SP_OBJECT_ID" ServicePrincipal'
+comando = "pytest"
+
+[[mutacao]]
+id = "M10"
+controle = "ASI03"
+descricao = "Estado do Terraform aceita chave de acesso"
+arquivo = "infra/bootstrap/bootstrap.sh"
+de = "--allow-shared-key-access false"
+para = "--allow-shared-key-access true"
+comando = "pytest"
+
+[[mutacao]]
+id = "M11"
+controle = "ASI03"
+descricao = "Connection string como valor literal no container"
+arquivo = "infra/main.tf"
+de = 'secret_name = "appinsights-connection-string" # pragma: allowlist secret'
+para = "value = azurerm_application_insights.main.connection_string"
+comando = "terraform"
+
+# --- ASI04 · Cadeia de suprimentos -----------------------------------------------------------
+
+[[mutacao]]
+id = "M12"
+controle = "ASI04 · AST02"
+descricao = "Action fixada por tag em vez de SHA"
+arquivo = ".github/workflows/ci.yml"
+de = "      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0"
+para = "      - uses: gitleaks/gitleaks-action@v3"
+comando = "pytest"
+
+[[mutacao]]
+id = "M13"
+controle = "ASI04 · AST07"
+descricao = "Imagem base sem digest"
+arquivo = "Dockerfile"
+de = "FROM ghcr.io/astral-sh/uv:0.13.1@sha256:4a1f3666816dafadd20ceb71eac9a7d56d7ef30279f7d64048519ab901ada336 AS uv"
+para = "FROM ghcr.io/astral-sh/uv:0.13.1 AS uv"
+comando = "pytest"
+
+[[mutacao]]
+id = "M14"
+controle = "ASI04 · AST02"
+descricao = "Regra dos 14 dias desligada"
+arquivo = "pyproject.toml"
+de = 'exclude-newer = "14 days"'
+para = 'exclude-newer = "0 days"'
+comando = "pytest"
+
+[[mutacao]]
+id = "M15"
+controle = "ASI04 · AST07"
+descricao = "Deploy aceita tag móvel (latest)"
+arquivo = "infra/variables.tf"
+de = 'condition     = can(regex("^ghcr\\.io/[a-z0-9._/-]+:[0-9a-f]{7,40}$", var.image))'
+para = 'condition     = can(regex("^.+:.+$", var.image))'
+comando = "terraform"
+
+[[mutacao]]
+id = "M16"
+controle = "ASI04"
+descricao = "Segredo de repositório usado no workflow"
+arquivo = ".github/workflows/cd.yml"
+de = "          password: ${{ secrets.GITHUB_TOKEN }}"
+para = "          password: ${{ secrets.GHCR_PAT }}"
+comando = "pytest"
+
+[[mutacao]]
+id = "M17"
+controle = "ASI04"
+descricao = "Dependabot sem espera para as actions"
+arquivo = ".github/dependabot.yml"
+de = """    schedule: {interval: "weekly"}
+    cooldown: {default-days: 14}
+  # Imagens base"""
+para = """    schedule: {interval: "weekly"}
+  # Imagens base"""
+comando = "pytest"
+
+# --- ASI08 · Falhas em cascata e custo -------------------------------------------------------
+
+[[mutacao]]
+id = "M18"
+controle = "ASI08"
+descricao = "Trava de rede dos testes desligada"
+arquivo = "tests/conftest.py"
+de = "        if sock.family in (socket.AF_INET, socket.AF_INET6) and address[0] not in _LOOPBACK:"
+para = "        if False:"
+comando = "pytest"
+
+[[mutacao]]
+id = "M19"
+controle = "ASI08 · D10"
+descricao = "Probes de health rastreadas (custo de ingestão)"
+arquivo = "src/redacao/telemetry.py"
+de = '_UNTRACED_URLS = "health/.*"'
+para = '_UNTRACED_URLS = "nada-excluido"'
+comando = "pytest"
+
+[[mutacao]]
+id = "M20"
+controle = "ASI08 · D2"
+descricao = "API sem escala a zero"
+arquivo = "infra/main.tf"
+de = "    min_replicas = 0"
+para = "    min_replicas = 1"
+comando = "terraform"
+
+[[mutacao]]
+id = "M21"
+controle = "ASI08 · D10"
+descricao = "Log Analytics sem teto diário"
+arquivo = "infra/main.tf"
+de = "  daily_quota_gb = 0.5"
+para = "  daily_quota_gb = -1"
+comando = "terraform"
+
+[[mutacao]]
+id = "M22"
+controle = "ASI08 · D3"
+descricao = "Smoke test aceita qualquer versão no ar"
+arquivo = "scripts/smoke.py"
+de = 'if expected is None or body.get("versao") == expected:'
+para = "if True:"
+comando = "pytest"
+
+[[mutacao]]
+id = "M23"
+controle = "ASI02"
+descricao = "Smoke test aceita esquema file://"
+arquivo = "scripts/smoke.py"
+de = '    if urlparse(base_url).scheme not in {"http", "https"}:'
+para = "    if False:"
+comando = "pytest"

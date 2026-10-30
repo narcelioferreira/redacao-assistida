@@ -1,0 +1,21 @@
+# PRs de atualização (OWASP ASI04 / AST02, decisão D9). Toda atualização passa pelo CI e por
+# revisão: nada é atualizado sozinho em produção.
+version: 2
+updates:
+  # Os pacotes Python já respeitam os 14 dias pelo `exclude-newer` do pyproject.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule: {interval: "weekly"}
+    open-pull-requests-limit: 5
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: {interval: "weekly"}
+    cooldown: {default-days: 14}
+  # Imagens base sem espera: as atualizações delas são, quase sempre, correções de segurança.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule: {interval: "weekly"}
+  - package-ecosystem: "terraform"
+    directory: "/infra"
+    schedule: {interval: "monthly"}
+    cooldown: {default-days: 14}
