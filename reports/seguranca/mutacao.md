@@ -18,7 +18,7 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M10 | ASI03 | Estado do Terraform aceita chave de acesso | `test_estado_do_terraform_sem_chave_de_acesso` | ✅ morta |
 | M11 | ASI03 | Connection string como valor literal no container | `connection_string_como_secret` | ✅ morta |
 | M12 | ASI04 · AST02 | Action fixada por tag em vez de SHA | `test_actions_fixadas_por_sha_de_commit[ci.yml]` | ✅ morta |
-| M13 | ASI04 · AST07 | Imagem base sem digest | `test_imagens_base_por_digest` | ✅ morta |
+| M13 | ASI04 · AST07 | Imagem base sem digest | `test_dockerfile_tem_a_versao_do_uv_que_o_ci_le`<br>`test_imagens_base_por_digest` | ✅ morta |
 | M14 | ASI04 · AST02 | Regra dos 14 dias desligada | `test_dependencias_com_14_dias_de_publicacao` | ✅ morta |
 | M15 | ASI04 · AST07 | Deploy aceita tag móvel (latest) | `tag_movel_e_recusada` | ✅ morta |
 | M16 | ASI04 | Segredo de repositório usado no workflow | `test_nenhum_segredo_alem_do_github_token[cd.yml]` | ✅ morta |
@@ -30,5 +30,6 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M22 | ASI08 · D3 | Smoke test aceita qualquer versão no ar | `test_recusa_quando_a_revisao_no_ar_e_outra` | ✅ morta |
 | M23 | ASI02 | Smoke test aceita esquema file:// | `test_recusa_esquema_que_nao_e_http` | ✅ morta |
 | M25 | ASI04 | Dependabot propõe troca de versão do Python (3.12 → 3.x) | `test_dependabot_cobre_todos_os_ecossistemas_com_espera` | ✅ morta |
+| M26 | ASI04 · AST07 | CI com versão do uv escrita à mão (desalinha da imagem) | `test_uv_do_ci_vem_do_dockerfile[ci.yml]` | ✅ morta |
 
-**25 de 25 mutações mortas.**
+**26 de 26 mutações mortas.**

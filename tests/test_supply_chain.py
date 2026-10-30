@@ -75,6 +75,29 @@ def test_deploy_usa_a_imagem_do_sha_do_commit() -> None:
     assert "--versao" in str(deploy["steps"]) and "GITHUB_SHA" in str(deploy["steps"])
 
 
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
+def test_uv_do_ci_vem_do_dockerfile(path: Path) -> None:
+    """O CI usa o mesmo uv da imagem: a versão é lida do Dockerfile, nunca escrita à mão.
+
+    Achado depois do PR #3: o Dependabot atualizou o uv do Dockerfile, e o CI continuou no antigo.
+    """
+    for job in _workflow(path)["jobs"].values():
+        steps = job.get("steps", [])
+        for posicao, step in enumerate(steps):
+            if step.get("uses", "").startswith("astral-sh/setup-uv@"):
+                assert step["with"]["version"] == "${{ steps.uv.outputs.versao }}"
+                anteriores = [s for s in steps[:posicao] if s.get("id") == "uv"]
+                assert anteriores and "Dockerfile" in anteriores[0]["run"]
+
+
+def test_dockerfile_tem_a_versao_do_uv_que_o_ci_le() -> None:
+    dockerfile = (RAIZ / "Dockerfile").read_text(encoding="utf-8")
+    versoes = re.findall(
+        r"^FROM ghcr\.io/astral-sh/uv:([0-9.]+)@sha256:", dockerfile, flags=re.MULTILINE
+    )
+    assert len(versoes) == 1
+
+
 def test_imagens_base_por_digest() -> None:
     linhas = (RAIZ / "Dockerfile").read_text(encoding="utf-8").splitlines()
     froms = [linha for linha in linhas if linha.startswith("FROM ")]

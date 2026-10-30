@@ -240,3 +240,13 @@ arquivo = ".github/dependabot.yml"
 de = '        update-types: ["version-update:semver-major", "version-update:semver-minor"]'
 para = '        update-types: ["version-update:semver-major"]'
 comando = "pytest"
+
+[[mutacao]]
+id = "M26"
+controle = "ASI04 · AST07"
+descricao = "CI com versão do uv escrita à mão (desalinha da imagem)"
+arquivo = ".github/workflows/ci.yml"
+de = '(name: Lint, tipos, testes e dependências\n(?:.*\n)*?          version: )\$\{\{ steps\.uv\.outputs\.versao \}\}'
+para = '\1"0.13.6"'
+regex = true
+comando = "pytest"
