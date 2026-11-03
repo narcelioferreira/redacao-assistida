@@ -20,6 +20,20 @@ jobs:
     name: Lint, tipos, testes e dependências
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Postgres 17 com pgvector, a mesma versão do Azure, para os testes de integração (T10).
+    services:
+      db:
+        image: pgvector/pgvector:pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8
+        env:
+          POSTGRES_DB: redacao
+          POSTGRES_USER: redacao
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U redacao -d redacao"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://redacao@localhost:5432/redacao
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -41,6 +55,8 @@ jobs:
         run: uv sync --locked
       - name: Lint, tipos, testes e vulnerabilidades conhecidas
         run: make check
+      - name: Testes de integração com o Postgres (migration, restrições e isolamento)
+        run: make test-integracao
 
   segredos:
     name: Segredos no histórico
@@ -100,6 +116,20 @@ jobs:
     name: Validação por mutação dos controles de segurança
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Postgres 17 com pgvector, a mesma versão do Azure, para os testes de integração (T10).
+    services:
+      db:
+        image: pgvector/pgvector:pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8
+        env:
+          POSTGRES_DB: redacao
+          POSTGRES_USER: redacao
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U redacao -d redacao"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://redacao@localhost:5432/redacao
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

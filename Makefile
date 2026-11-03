@@ -1,4 +1,4 @@
-.PHONY: install fmt lint typecheck test security check run docker-run smoke tf-check mutacao
+.PHONY: install fmt lint typecheck test test-integracao db security check run docker-run smoke tf-check mutacao
 
 install:
 	uv sync --locked
@@ -16,6 +16,16 @@ typecheck:
 
 test:
 	uv run pytest --cov --cov-report=term-missing
+
+# Postgres local (docker compose) e testes contra ele. A sessão recria o schema pela migration.
+DATABASE_URL ?= postgresql+psycopg://redacao@127.0.0.1:5432/redacao
+export DATABASE_URL
+
+db:
+	docker compose up -d --wait db
+
+test-integracao:
+	uv run pytest -m integration --no-cov
 
 # Gate de segurança (docs/03-seguranca.md). Os lockfiles têm hashes que parecem segredos.
 security:
@@ -42,6 +52,7 @@ tf-check:
 	terraform -chdir=infra validate
 	terraform -chdir=infra test
 
-# Desliga cada controle de security/mutacoes.toml e exige que os testes falhem. Precisa do terraform.
+# Desliga cada controle de security/mutacoes.toml e exige que os testes falhem. Precisa do
+# terraform e do Postgres local (make db).
 mutacao:
 	python3 scripts/mutacao.py --relatorio reports/seguranca/mutacao.md

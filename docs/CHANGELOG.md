@@ -2,6 +2,35 @@
 
 Uma entrada por task fechada: o que foi feito, como foi testado e quais problemas apareceram.
 
+## F1 · Uma redação
+
+### T10 · Modelo de dados · 03/11/2026 · 👥 Narcelio decidiu, Claude executou
+
+**Feito**
+- Decisões do Narcelio (D18): `escola_id` em todas as tabelas, 5 colunas de nota, avaliações e
+  revisões só por inserção, UUIDv7, texto separado, retenção configurável (padrão 180 dias) e
+  `aluno_ref` livre.
+- Migration `0001` em SQL explícito (Alembic), Postgres 17 com pgvector no compose e no CI.
+- `redacao.ids.uuid7()` (o Python 3.12 ainda não tem).
+- 22 testes de integração (uma decisão, um teste) e 6 mutações do modelo (M27–M32), mais a M33
+  (imagem do Postgres sem digest).
+- Dependências novas: `alembic` (migrations) e `psycopg` (driver do Postgres).
+
+**Testado**
+- Migration sobe, desce e sobe de novo no Postgres 17.11.
+- `make check` (55 testes), `make test-integracao` (22), `make tf-check` e `make mutacao` (33 de 33
+  mortas).
+
+**Problemas encontrados**
+- As 6 mutações do banco apareceram como "erro" na primeira execução: o script reconhecia as falhas
+  só do comando chamado `pytest` e lia a saída da integração com o padrão do Terraform. Corrigido,
+  com teste para cada comando de mutação.
+- O pytest coletava a função importada `testes_que_falharam` como se fosse um teste (o nome começa
+  com "test"). Importada com outro nome.
+- Consequências das decisões, registradas na D18: "só inserção" bloqueia UPDATE mas permite DELETE
+  (exclusão a pedido); justificativas e trechos saíram para uma tabela própria, porque citam o texto
+  do aluno; a revisão ficou sem comentário livre.
+
 ## F0 · Esqueleto no ar
 
 ### Manutenção · exceções de segurança removidas · 03/11/2026 · 🤖 Claude

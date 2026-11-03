@@ -250,3 +250,77 @@ de = '(name: Lint, tipos, testes e dependências\n(?:.*\n)*?          version: )
 para = '\1"0.13.6"'
 regex = true
 comando = "pytest"
+
+# --- Modelo de dados (T10 · D18) · comando "integracao" precisa de DATABASE_URL ------------
+
+[[mutacao]]
+id = "M27"
+controle = "D18 · integridade"
+descricao = "Nota aceita qualquer valor de 0 a 200 (não só os níveis do ENEM)"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = '_NIVEL = "IN (0, 40, 80, 120, 160, 200)"'
+para = '_NIVEL = "BETWEEN -1000 AND 1000"'
+comando = "integracao"
+
+[[mutacao]]
+id = "M28"
+controle = "API1 · D18"
+descricao = "Banco aceita id que não é UUIDv7 (sequencial ou v4)"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = '    return f"CHECK (uuid_extract_version({coluna}) = 7)"'
+para = '    return "CHECK (true)"'
+comando = "integracao"
+
+[[mutacao]]
+id = "M29"
+controle = "API1 · isolamento"
+descricao = "Turma pode apontar para professor de outra escola"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = '''            FOREIGN KEY (escola_id, professor_id) REFERENCES usuarios (escola_id, id)
+        );
+
+        CREATE TABLE propostas ('''
+para = '''            FOREIGN KEY (professor_id) REFERENCES usuarios (id)
+        );
+
+        CREATE TABLE propostas ('''
+comando = "integracao"
+
+[[mutacao]]
+id = "M30"
+controle = "ASI08 · D13"
+descricao = "Mesma redação e mesmo prompt avaliados duas vezes (sem idempotência)"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = "            UNIQUE (redacao_id, prompt_hash),\n"
+para = ""
+comando = "integracao"
+
+[[mutacao]]
+id = "M31"
+controle = "ASI10 · auditoria"
+descricao = "Nota da IA pode ser alterada depois de gravada"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = '''        CREATE TRIGGER avaliacoes_so_insercao BEFORE UPDATE ON avaliacoes
+            FOR EACH ROW EXECUTE FUNCTION recusa_alteracao();
+'''
+para = ""
+comando = "integracao"
+
+[[mutacao]]
+id = "M32"
+controle = "LGPD"
+descricao = "aluno_ref apagado sem registrar a anonimização"
+arquivo = "migrations/versions/0001_modelo_inicial.py"
+de = "            CHECK ((aluno_ref IS NULL) = (anonimizada_em IS NOT NULL)),\n"
+para = ""
+comando = "integracao"
+
+[[mutacao]]
+id = "M33"
+controle = "ASI04 · AST07"
+descricao = "Postgres do compose sem digest (tag móvel)"
+arquivo = "docker-compose.yml"
+de = '(image: pgvector/pgvector:pg17)@sha256:[0-9a-f]{64}'
+para = '\1'
+regex = true
+comando = "pytest"

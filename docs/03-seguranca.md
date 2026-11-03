@@ -48,9 +48,9 @@ qualquer campo da requisição, os tokens recebidos e as mensagens lidas da fila
 | **ASI05 · Unexpected Code Execution** | Nada executa entrada do usuário. O script de mutação só roda comandos fixos, sem shell | bandit no gate | **T18:** a saída do LLM só é lida como JSON validado, nunca executada. **T22:** `.docx` lido com limite de tamanho, sem macros nem conteúdo externo; YAML só com `safe_load` |
 | **ASI06 · Memory & Context Poisoning** | — (sem memória nem contexto recuperado na F0) | — | Sem memória de longo prazo. **T16:** rubrica e exemplos imutáveis por versão. **T51 (F5):** trechos recuperados passam de novo pelo detector de injeção, e só vale citação de redação recuperada na própria execução |
 | **ASI07 · Insecure Inter-Agent Communication** | — (um único serviço na F0) | — | **T21/T23:** a mensagem da fila leva só o id e o `traceparent` (D14) e é validada com `extra="forbid"`; Service Bus acessado por Managed Identity, sem chave de acesso compartilhada |
-| **ASI08 · Cascading Failures** | `/health` nunca depende do LLM. Escala a zero com teto de 2 réplicas. Log Analytics com teto diário. Probes fora do trace. Orçamento com alertas (50%, 80% e previsão de 100%). Trava de rede nos testes. Smoke test que confere a versão no ar | `escala_limitada` e `logs_com_destino_e_teto` no Terraform (M20, M21), `test_probes_ficam_fora_do_trace` (M19), `test_trava_de_rede_bloqueia_endereco_externo` (M18), `test_recusa_quando_a_revisao_no_ar_e_outra` (M22) | **T15/T23:** timeouts, retries limitados com `Retry-After` e jitter, DLQ e alerta. **T25:** cota diária por escola (429) e chave para desligar o LLM. Orçamento de tokens por lote |
+| **ASI08 · Cascading Failures** | `/health` nunca depende do LLM. Escala a zero com teto de 2 réplicas. Log Analytics com teto diário. Probes fora do trace. Orçamento com alertas (50%, 80% e previsão de 100%). Trava de rede nos testes. Smoke test que confere a versão no ar. **Idempotência no banco (T10):** uma avaliação por (redação, hash do prompt), base do worker (D13) | `test_mesma_redacao_e_mesmo_prompt_sao_avaliados_uma_vez` (M30), `escala_limitada` e `logs_com_destino_e_teto` no Terraform (M20, M21), `test_probes_ficam_fora_do_trace` (M19), `test_trava_de_rede_bloqueia_endereco_externo` (M18), `test_recusa_quando_a_revisao_no_ar_e_outra` (M22) | **T15/T23:** timeouts, retries limitados com `Retry-After` e jitter, DLQ e alerta. **T25:** cota diária por escola (429) e chave para desligar o LLM. Orçamento de tokens por lote |
 | **ASI09 · Human-Agent Trust Exploitation** | — (sem saída de LLM na F0) | — | **T33:** cada trecho citado precisa existir no texto (conferido em código). **T40/T41:** a interface mostra "nota sugerida", e a nota final só existe depois da revisão do professor; justificativa saneada (sem HTML nem links) antes de chegar ao front |
-| **ASI10 · Rogue Agents** | Pipeline com etapas fixas (D12): nenhum componente escolhe caminhos sozinho | — | **T10:** avaliações só por inserção, com modelo, hash do prompt, tokens e custo (trilha de auditoria). **T50 (F5):** loop de function calling com teto de iterações e de tokens decidido pelo código |
+| **ASI10 · Rogue Agents** | Pipeline com etapas fixas (D12): nenhum componente escolhe caminhos sozinho. **Trilha de auditoria no banco (T10):** avaliações e revisões só por inserção (trigger recusa UPDATE), com modelo, hash do prompt, tokens, custo e latência | `test_avaliacao_nao_aceita_alteracao` (M31), `test_revisao_nao_aceita_alteracao_e_a_mais_recente_vale` | **T50 (F5):** loop de function calling com teto de iterações e de tokens decidido pelo código |
 
 ---
 
@@ -79,7 +79,7 @@ configuração e a skill de revisão usada no desenvolvimento (`.claude/skills/s
 
 | Risco | Controle | Situação |
 |---|---|---|
-| API1 · Broken Object Level Authorization | Escopo por escola, RLS e teste de BOLA (recurso de outra escola → 404) | ⏳ T14 |
+| API1 · Broken Object Level Authorization | **No banco (T10):** `escola_id` com chave composta, nenhuma linha aponta para outra escola (M29); ids UUIDv7 não adivinháveis (M28). **Na API:** escopo por escola, RLS e teste de BOLA (recurso de outra escola → 404) | ✅ T10 / ⏳ T14 |
 | API2 · Broken Authentication | JWT validado por completo; sem chave de API estática | ⏳ T13 |
 | API3 · Broken Object Property Level Authorization | Modelos de resposta explícitos; entrada com `extra="forbid"` | ⏳ T22 |
 | API4 · Unrestricted Resource Consumption | Teto de réplicas e de logs ✅; limite de corpo, cota por escola e orçamento de tokens | ⏳ T22, T25 |
@@ -96,14 +96,17 @@ configuração e a skill de revisão usada no desenvolvimento (`.claude/skills/s
 
 Implementado:
 - o erro 422 não ecoa o valor enviado, que pode ser texto de aluno ou dado pessoal (M02);
-- o erro 500 não devolve detalhe interno (M01).
+- o erro 500 não devolve detalhe interno (M01);
+- **modelo de dados (T10):** sem nome de aluno, só o `aluno_ref` definido pela escola
+  (pseudonimização: o vínculo com o nome fica com a escola); texto e citações em tabelas separadas,
+  que a retenção apaga mantendo as notas; anonimização sempre registrada (`anonimizada_em`, M32);
+  retenção por escola, padrão de 180 dias, de 1 a 730; exclusão do lote em cascata.
 
 Planejado:
-- sem nome de aluno: só um identificador definido pela escola (T10);
 - PII mascarada antes de o texto ir ao LLM (T33);
 - o `.docx` original não é guardado (D16);
 - texto de redação fora de logs, traces e mensagens de fila (D14, T26);
-- retenção com prazo e exclusão a pedido (T27, `DELETE /v1/lotes/{id}`);
+- o job que executa a retenção (T27) e a rota de exclusão a pedido (`DELETE /v1/lotes/{id}`);
 - local de processamento do modelo registrado como decisão de privacidade (T11).
 
 ---

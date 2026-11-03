@@ -44,6 +44,9 @@ texto que sustentam cada nota. O professor revisa e decide. A IA nunca dá a not
 - Outros vestibulares e outras rubricas.
 - Integração com plataformas da escola (LMS, Google Classroom).
 - Devolutiva direta ao aluno: a pré-correção vai para o professor.
+- Histórico do aluno entre anos letivos: exigiria uma identidade permanente do aluno e acesso de
+  aluno ao sistema. A retenção é configurável por escola (padrão 180 dias) para quem precisar de mais.
+- Espelho da correção em PDF para o aluno: opcional da F4 (T44), se sobrar tempo.
 
 ## Métricas de sucesso
 

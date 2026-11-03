@@ -31,5 +31,12 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M23 | ASI02 | Smoke test aceita esquema file:// | `test_recusa_esquema_que_nao_e_http` | ✅ morta |
 | M25 | ASI04 | Dependabot propõe troca de versão do Python (3.12 → 3.x) | `test_dependabot_cobre_todos_os_ecossistemas_com_espera` | ✅ morta |
 | M26 | ASI04 · AST07 | CI com versão do uv escrita à mão (desalinha da imagem) | `test_uv_do_ci_vem_do_dockerfile[ci.yml]` | ✅ morta |
+| M27 | D18 · integridade | Nota aceita qualquer valor de 0 a 200 (não só os níveis do ENEM) | `test_nota_fora_dos_niveis_do_enem_e_recusada[50]`<br>`test_nota_fora_dos_niveis_do_enem_e_recusada[210]`<br>`test_nota_fora_dos_niveis_do_enem_e_recusada[-40]` | ✅ morta |
+| M28 | API1 · D18 | Banco aceita id que não é UUIDv7 (sequencial ou v4) | `test_id_que_nao_e_uuid7_e_recusado` | ✅ morta |
+| M29 | API1 · isolamento | Turma pode apontar para professor de outra escola | `test_registro_nao_aponta_para_outra_escola` | ✅ morta |
+| M30 | ASI08 · D13 | Mesma redação e mesmo prompt avaliados duas vezes (sem idempotência) | `test_mesma_redacao_e_mesmo_prompt_sao_avaliados_uma_vez` | ✅ morta |
+| M31 | ASI10 · auditoria | Nota da IA pode ser alterada depois de gravada | `test_avaliacao_nao_aceita_alteracao` | ✅ morta |
+| M32 | LGPD | aluno_ref apagado sem registrar a anonimização | `test_aluno_ref_nao_some_sem_registrar_a_anonimizacao` | ✅ morta |
+| M33 | ASI04 · AST07 | Postgres do compose sem digest (tag móvel) | `test_imagens_de_servico_por_digest` | ✅ morta |
 
-**26 de 26 mutações mortas.**
+**33 de 33 mutações mortas.**

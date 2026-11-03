@@ -1,6 +1,21 @@
-# Ambiente local. Na F1 entra o Postgres com pgvector; a fila da F2 roda em memória nos testes e
-# no Azure Service Bus na nuvem.
+# Ambiente local. A fila da F2 roda em memória nos testes e no Azure Service Bus na nuvem.
 services:
+  # Postgres 17 com pgvector, a mesma versão do Azure (T11). Só escuta em 127.0.0.1 e aceita
+  # conexão sem senha: é exclusivo da máquina de desenvolvimento.
+  db:
+    image: pgvector/pgvector:pg17@sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8
+    environment:
+      POSTGRES_DB: redacao
+      POSTGRES_USER: redacao
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redacao -d redacao"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
   api:
     build: .
     image: redacao-assistida:local

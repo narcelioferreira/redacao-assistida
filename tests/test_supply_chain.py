@@ -106,6 +106,22 @@ def test_imagens_base_por_digest() -> None:
         assert re.search(r"@sha256:[0-9a-f]{64}", linha), f"imagem sem digest: {linha}"
 
 
+def test_imagens_de_servico_por_digest() -> None:
+    """O Postgres do CI e do compose também é fixado por digest (T10)."""
+    imagens = [
+        servico["image"]
+        for path in WORKFLOWS
+        for job in _workflow(path)["jobs"].values()
+        for servico in job.get("services", {}).values()
+    ]
+    compose = yaml.safe_load((RAIZ / "docker-compose.yml").read_text(encoding="utf-8"))
+    # Serviços com `build` usam a imagem construída do próprio repositório.
+    imagens += [s["image"] for s in compose["services"].values() if "build" not in s]
+    assert imagens
+    for imagem in imagens:
+        assert re.search(r"@sha256:[0-9a-f]{64}$", imagem), f"imagem sem digest: {imagem}"
+
+
 def test_container_roda_sem_privilegio() -> None:
     dockerfile = (RAIZ / "Dockerfile").read_text(encoding="utf-8")
     usuarios = re.findall(r"^USER (\S+)$", dockerfile, flags=re.MULTILINE)

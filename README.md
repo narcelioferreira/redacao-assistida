@@ -17,7 +17,7 @@ contrato, sinistro ou currículo e a arquitetura é a mesma.
 | Fase | Entrega | Situação |
 |---|---|---|
 | F0 · Esqueleto no ar | API mínima, Docker, CI, imagem no GHCR, Terraform, CD com OIDC | ✅ No ar: [ca-redacao-api.redwater-00b3bec9.brazilsouth.azurecontainerapps.io](https://ca-redacao-api.redwater-00b3bec9.brazilsouth.azurecontainerapps.io/docs) |
-| F1 · Uma redação | Login, modelo de dados, avaliação síncrona com Azure OpenAI | ⏳ |
+| F1 · Uma redação | Login, modelo de dados, avaliação síncrona com Azure OpenAI | 🚧 Modelo de dados pronto (T10) |
 | F2 · Lotes por fila | Service Bus, worker com escala por fila, idempotência, DLQ, progresso em tempo real | ⏳ |
 | F3 · Qualidade | Avaliação contra corretores humanos (corpus Essay-BR), guardrails, experimentos | ⏳ |
 | F4 · Front e revisão | SPA mínima, revisão do professor, concordância IA × professor | ⏳ |
@@ -62,6 +62,8 @@ make check      # lint, tipos (mypy strict), testes com cobertura e vulnerabilid
 make run        # API em http://127.0.0.1:8000 (documentação em /docs)
 make docker-run # a mesma API na imagem de produção, só leitura e sem capabilities
 make smoke      # o smoke test do CD contra a API local
+make db         # Postgres 17 local (docker compose)
+make test-integracao  # migration, restrições e isolamento contra o Postgres
 make tf-check   # formato, validação e testes do Terraform, sem credencial do Azure
 make mutacao    # desliga cada controle de segurança e exige que os testes falhem
 ```
@@ -92,7 +94,7 @@ Os controles seguem o OWASP Top 10 for Agentic Applications 2026 (ASI01–ASI10)
 complementar ao OWASP Agentic Skills Top 10 (AST, em revisão pública) e ao OWASP API Security Top 10.
 Cada controle implementado tem um teste que o comprova e foi validado por mutação: com a proteção
 desligada de propósito, os testes falham. O CI roda as mutações a cada PR
-(**26 de 26 mortas**, [relatório](reports/seguranca/mutacao.md)).
+(**33 de 33 mortas**, [relatório](reports/seguranca/mutacao.md)).
 
 O modelo de ameaças, os testes por controle, os mapeamentos complementares e os riscos residuais estão
 em [docs/03-seguranca.md](docs/03-seguranca.md).
@@ -136,6 +138,7 @@ Terraform, autenticado por OIDC, sem nenhum segredo guardado no GitHub. Passo a 
 ```
 src/redacao/       API (FastAPI), configuração e telemetria
 tests/             testes (com trava de rede: nenhum teste acessa a internet)
+migrations/        schema do banco em SQL explícito (Alembic)
 scripts/           smoke test pós-deploy e validação por mutação
 infra/             Terraform do ambiente demo, testes do Terraform e o bootstrap do Azure
 security/          política SecurityFN e mutações dos controles
@@ -151,7 +154,7 @@ docs/              visão, arquitetura, plano, segurança, decisões, deploy e c
 - [Arquitetura](docs/01-arquitetura.md)
 - [Plano de tasks](docs/02-plano-de-tasks.md)
 - [Segurança: modelo de ameaças e controles](docs/03-seguranca.md)
-- [Decisões registradas (D1–D17)](docs/decisoes.md)
+- [Decisões registradas (D1–D18)](docs/decisoes.md)
 - [Deploy no Azure](docs/deploy-azure.md)
 - [Changelog](docs/CHANGELOG.md)
 

@@ -1,5 +1,9 @@
 import pytest
-from mutacao import Mutacao, trocar  # scripts/mutacao.py (pythonpath no pyproject)
+
+# scripts/mutacao.py (pythonpath no pyproject). Alias: um nome que começa com "test" seria coletado
+# pelo pytest como se fosse um teste.
+from mutacao import COMANDOS, Mutacao, trocar
+from mutacao import testes_que_falharam as falhas_reconhecidas
 
 
 def _mutacao(de: str, para: str, *, regex: bool = False) -> Mutacao:
@@ -34,3 +38,22 @@ def test_trecho_ausente_ou_repetido_e_recusado(texto: str) -> None:
     """Sem ocorrência única, a mutação não sabe o que desligar: falha alto em vez de passar."""
     with pytest.raises(ValueError, match="1 vez"):
         trocar(texto, _mutacao("USER 10001", "USER root"))
+
+
+SAIDA_PYTEST = "FAILED tests/x.py::test_a - assert 1\nFAILED tests/y.py::test_b\n1 passed"
+SAIDA_TERRAFORM = '  run "tag_movel"... fail\n  run "escala"... pass\n'
+
+
+@pytest.mark.parametrize("comando", sorted(COMANDOS))
+def test_cada_comando_tem_a_saida_reconhecida(comando: str) -> None:
+    """Todo comando de mutação precisa ter as falhas reconhecidas (achado na T10)."""
+    saida = SAIDA_TERRAFORM if comando == "terraform" else SAIDA_PYTEST
+    assert falhas_reconhecidas(comando, saida)
+
+
+def test_falhas_do_pytest_e_do_terraform() -> None:
+    assert falhas_reconhecidas("pytest", SAIDA_PYTEST) == (
+        "tests/x.py::test_a",
+        "tests/y.py::test_b",
+    )
+    assert falhas_reconhecidas("terraform", SAIDA_TERRAFORM) == ("tag_movel",)

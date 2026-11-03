@@ -56,8 +56,10 @@ make check      # ruff, mypy strict, pytest com cobertura, pip-audit
 make run        # API local com reload
 make docker-run # API na imagem de produção (docker compose)
 make smoke      # smoke test contra a API local
+make db         # Postgres 17 local (docker compose)
+make test-integracao  # testes contra o Postgres (DATABASE_URL)
 make tf-check   # terraform fmt, init sem backend, validate e test (provider simulado)
-make mutacao    # validação por mutação dos controles de segurança
+make mutacao    # validação por mutação dos controles de segurança (precisa do `make db`)
 ```
 
 `make check` inclui o gate de segurança: bandit, detect-secrets, pip-audit e zizmor. Antes de
@@ -113,7 +115,7 @@ os três, mais gitleaks e o build com smoke test da imagem.
 - `docs/01-arquitetura.md`: componentes, fluxo, contrato da API, modelo de dados, custos.
 - `docs/02-plano-de-tasks.md`: fases, tasks, donos, riscos tratados, estimativas e critérios de aceite.
 - `docs/03-seguranca.md`: modelo de ameaças, controles com teste e mutação, riscos residuais.
-- `docs/decisoes.md`: decisões D1–D17. Mudança que contraria uma decisão registra a nova no mesmo PR.
+- `docs/decisoes.md`: decisões D1–D18. Mudança que contraria uma decisão registra a nova no mesmo PR.
 - `docs/deploy-azure.md`: bootstrap e primeiro deploy.
 - `docs/CHANGELOG.md`: uma entrada por task fechada (o que foi feito, como foi testado, problemas
   encontrados). Atualize também a coluna "Real" do plano.
