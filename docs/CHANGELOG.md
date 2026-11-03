@@ -4,6 +4,19 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F0 · Esqueleto no ar
 
+### Manutenção · exceções de segurança removidas · 03/11/2026 · 🤖 Claude
+
+**Feito**
+- Removidas as exceções `exclude-newer-package` de `certifi` e `filelock` (D9): as versões corrigidas
+  completaram 14 dias. O uv manteve `certifi` 2026.10.19 e `filelock` 4.2.1.
+
+**Testado**
+- `make check` (pip-audit sem vulnerabilidades) e `make mutacao`.
+
+**Problemas encontrados**
+- O teste das exceções falharia em qualquer CI a partir de hoje: funcionou como previsto, forçando a
+  remoção no dia certo.
+
 ### Manutenção · uv do CI e exceções de segurança · 30/10/2026 · 🤖 Claude
 
 **Feito**
