@@ -33,7 +33,7 @@ Situação de cada parte: ✅ existe · ⏳ planejada (fase entre parênteses).
 | Imagens | GitHub Container Registry público, tag = SHA do commit | ✅ |
 | Infra como código | Terraform (azurerm 5.x), estado remoto em Storage Account | ✅ |
 | CI/CD | GitHub Actions; deploy por OIDC | ✅ (o deploy aguarda a T07) |
-| Banco | PostgreSQL Flexible B1ms com pgvector | ⏳ (F1) |
+| Banco | PostgreSQL 17 com pgvector; local no compose ✅ (T10), Azure Flexible B1ms ⏳ (T11) | 🚧 |
 | LLM | Azure OpenAI, modelo escolhido pelo experimento E3 | ⏳ (F1) |
 | Login | Entra External ID | ⏳ (F1) |
 | Fila | Service Bus Basic, fila com DLQ | ⏳ (F2) |
@@ -76,15 +76,39 @@ Convenções:
 - Cota diária por escola esgotada → `429` com `Retry-After`.
 - Recurso de outra escola → `404`, não `403`: a API não confirma que o recurso existe.
 
-## Modelo de dados (rascunho para a T10)
+## Modelo de dados (T10, decisão D18) ✅
 
-`escolas → usuarios (papel) → turmas → lotes → redacoes → avaliacoes → revisoes`
+Schema em `migrations/versions/0001_modelo_inicial.py` (SQL explícito, Postgres 17). Decidido pelo
+Narcelio; cada restrição tem teste de integração e mutação (`tests/integracao/test_modelo.py`).
 
-- `avaliacoes` só recebe inserções: cada uma guarda modelo, versão do prompt, tokens, custo e
-  latência. Reavaliar com um prompt novo cria outra linha.
-- A escola de quem faz a requisição vem do vínculo do usuário no banco, nunca do corpo da requisição.
-  O isolamento é reforçado por Row-Level Security no Postgres.
-- O aluno é um identificador definido pela escola; o sistema não guarda nome.
+```
+escolas (retencao_dias, padrão 180) ─┬─< usuarios (sub do login, papel)
+                                     ├─< turmas ─< lotes ─< redacoes ─┬── redacao_textos   (1:1)
+                                     └─< propostas ──────┘  (aluno_ref) ├─< avaliacoes ── avaliacao_detalhes (1:1)
+                                                                     └─< revisoes ──> avaliacoes
+```
+
+| Tabela | Para quê | Regras do banco |
+|---|---|---|
+| `escolas` | Tenant | `retencao_dias` de 1 a 730, padrão 180 |
+| `usuarios` | Professor ou coordenador | `sub` do login único; papel restrito |
+| `turmas`, `propostas` | Organização da escola | Nome de turma único por ano letivo |
+| `lotes` | Envio de redações | `idempotency_key` única por escola (HU01) |
+| `redacoes` | Uma por aluno por lote | `aluno_ref` livre (matrícula ou chamada), nunca o nome; `expira_em` |
+| `redacao_textos` | Só o texto | Apagado pela retenção |
+| `avaliacoes` | Sugestão da IA | Só inserção (trigger); níveis do ENEM; `total` calculado; única por (redação, hash do prompt) |
+| `avaliacao_detalhes` | Justificativas e trechos citados | Apagados pela retenção (citam o texto do aluno) |
+| `revisoes` | Nota final do professor | Só inserção; a mais recente vale; só de avaliação da mesma redação |
+
+Princípios:
+- **`escola_id` em todas as tabelas**, com chave estrangeira composta `(escola_id, id)`: uma linha
+  nunca aponta para um registro de outra escola, e a regra de isolamento (RLS, T14) fica igual em
+  todas as tabelas.
+- **Ids UUIDv7**, conferidos pelo banco (`uuid_extract_version`, Postgres 17).
+- **Retenção:** quando `expira_em` passa, o job (T27) apaga `redacao_textos` e `avaliacao_detalhes`,
+  limpa o `aluno_ref` e grava `anonimizada_em`. As notas ficam, sem dado pessoal, e as métricas de
+  concordância sobrevivem.
+- **Exclusão a pedido:** apagar o lote apaga tudo dele em cascata.
 
 ## Segurança e privacidade
 

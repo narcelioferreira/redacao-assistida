@@ -116,3 +116,33 @@ OWASP API Security Top 10 como mapeamentos complementares (`docs/03-seguranca.md
 estratégia do Lead Qualifier. Um controle só conta como implementado com um teste que o comprova e uma
 mutação (`security/mutacoes.toml`) que derruba esse teste quando a proteção é desligada. O CI roda
 todas as mutações. Toda task passa pelo ciclo de 5 etapas da política `security/Skill_SecurityFN.md`.
+
+## D18 · Modelo de dados (T10)
+
+Decidido pelo Narcelio. Schema em SQL explícito (`migrations/versions/0001_modelo_inicial.py`), sem
+ORM gerando o banco: cada restrição é legível e defendida por teste de integração e mutação.
+
+1. **`escola_id` em todas as tabelas**, com chave estrangeira composta `(escola_id, id)`: não depende
+   de joins para saber de quem é cada linha, e uma linha nunca aponta para outra escola.
+2. **Notas em 5 colunas** (`c1`..`c5`), só com os níveis do ENEM: a rubrica é fixa.
+3. **Avaliações só por inserção**, várias por redação, únicas por (redação, hash do prompt): a escola
+   corrige em quantidade, e cada nova versão do prompt gera outra avaliação.
+4. **Revisões só por inserção**: a mais recente é a nota final.
+5. **Ids UUIDv7**, conferidos pelo próprio banco.
+6. **Texto separado** (`redacao_textos`), e também as justificativas e os trechos citados
+   (`avaliacao_detalhes`), porque citam o texto do aluno: a retenção apaga essas tabelas e mantém as
+   notas.
+7. **Retenção configurável por escola, padrão de 180 dias** (de 1 a 730). Histórico entre anos e
+   espelho em PDF ficaram fora (ver `00-visao.md`).
+8. **`aluno_ref` em texto livre**: a escola escolhe matrícula ou número da chamada; o sistema nunca
+   guarda o nome (pseudonimização).
+
+Consequências que decorrem dessas escolhas, aplicadas no schema:
+- **Postgres 17**, por causa da função `uuid_extract_version` usada na decisão 5. O Azure oferece
+  essa versão (T11).
+- "Só inserção" quer dizer **sem UPDATE**. DELETE continua possível, para a exclusão do lote a pedido
+  (LGPD) apagar tudo em cascata.
+- Sem campo de comentário na revisão: seria texto livre que a retenção teria de apagar numa tabela que
+  não aceita alteração. Volta se aparecer a necessidade, em tabela própria.
+- Uma redação por aluno por lote (`UNIQUE (lote_id, aluno_ref)`).
+- A revisão aponta para a avaliação que o professor viu, sempre da mesma redação.

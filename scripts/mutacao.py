@@ -22,6 +22,19 @@ RAIZ = Path(__file__).resolve().parent.parent
 COMANDOS = {
     "pytest": ["uv", "run", "--no-sync", "pytest", "-q", "-p", "no:cacheprovider", "--no-cov"],
     "terraform": ["terraform", "-chdir=infra", "test", "-no-color"],
+    # Testes contra o Postgres (precisam de DATABASE_URL): a sessão recria o schema pela migration.
+    "integracao": [
+        "uv",
+        "run",
+        "--no-sync",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--no-cov",
+        "-m",
+        "integration",
+    ],
 }
 
 
@@ -65,9 +78,11 @@ def carregar(path: Path) -> list[Mutacao]:
 
 
 def testes_que_falharam(comando: str, saida: str) -> tuple[str, ...]:
-    if comando == "pytest":
-        return tuple(re.findall(r"^FAILED (\S+)", saida, flags=re.MULTILINE))
-    return tuple(re.findall(r'^\s+run "([^"]+)"\.\.\. fail', saida, flags=re.MULTILINE))
+    if comando == "terraform":
+        return tuple(re.findall(r'^\s+run "([^"]+)"\.\.\. fail', saida, flags=re.MULTILINE))
+    # "pytest" e "integracao" são pytest. A 1ª versão comparava só "pytest" e lia a saída da
+    # integração com o padrão do Terraform: toda mutação do banco virava "erro".
+    return tuple(re.findall(r"^FAILED (\S+)", saida, flags=re.MULTILINE))
 
 
 def trocar(texto: str, m: Mutacao) -> str:

@@ -55,7 +55,7 @@ escola recebe 404 ao tentar vê-la.
 
 | ID | Task | Dono | Segurança | Estim. | Real | Situação |
 |---|---|---|---|---|---|---|
-| T10 | Modelo de dados: o Narcelio desenha tabelas, chaves, restrições e o que é só inserção; Claude escreve as migrations (Alembic) e põe o Postgres no compose. Aceite: diagrama no docs e migration aplicada no CI | 👥 | ASI10, LGPD | 0,5 | | ⏳ |
+| T10 | Modelo de dados: o Narcelio desenha tabelas, chaves, restrições e o que é só inserção; Claude escreve as migrations (Alembic) e põe o Postgres no compose. Aceite: diagrama no docs e migration aplicada no CI | 👥 | ASI10, API1, LGPD | 0,5 | | 🚧 código pronto; falta o CI e a sua validação |
 | T11 | Terraform: Postgres Flexible B1ms com pgvector, Azure OpenAI com deployment, identidade gerenciada com papéis; bootstrap ganha permissão restrita de atribuir papéis; decisão de região do modelo. Aceite: apply no demo sem senha no código | 🤖 | ASI03, LGPD | 0,5 | | ⏳ |
 | T12 | Entra External ID: o Narcelio configura o tenant e os usuários demo pelo portal, com guia do Claude. Aceite: token de teste obtido | 👥 | ASI03 | 0,25 | | ⏳ |
 | T13 | Autenticação: validação do JWT (assinatura via JWKS, `iss`, `aud`, `exp`, algoritmos permitidos) e a dependência `usuario_atual`. Aceite: testes com token forjado, expirado e de outra audiência | 👤 | ASI03, API2 | 0,5 | | ⏳ |
@@ -106,6 +106,7 @@ Aceite da fase: um recrutador entra com o usuário demo e faz o fluxo inteiro em
 | T41 | Revisão do professor: `PUT /v1/redacoes/{id}/revisao` (nota final só depois da revisão) e concordância IA × professor no resumo da turma | 👤 | ASI09, API1 | 0,5 | | ⏳ |
 | T42 | Static Web Apps no Terraform, CD do front, CORS restrito, usuários demo e dados semeados | 🤖 | ASI03, API8 | 0,5 | | ⏳ |
 | T43 | Guia de integração do front (`docs/integracao-front.md`) e mock do contrato | 🤖 | — | 0,25 | | ⏳ |
+| T44 | Opcional: espelho da correção em PDF por `aluno_ref`, para o professor entregar ao aluno | 🤖 | LGPD | 0,5 | | ⏳ opcional |
 
 ## F5 · Opcional: assistente da turma (estimativa: 2 d)
 
