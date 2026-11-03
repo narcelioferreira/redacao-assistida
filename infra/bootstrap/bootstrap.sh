@@ -26,7 +26,8 @@ echo "Assinatura: $(az account show --query name -o tsv) ($SUBSCRIPTION_ID)"
 echo "1/5 Provedores de recurso"
 # A identidade do CD não tem permissão na assinatura, então o registro acontece aqui.
 for namespace in Microsoft.App Microsoft.OperationalInsights Microsoft.Insights \
-  Microsoft.Consumption Microsoft.Storage; do
+  Microsoft.Consumption Microsoft.Storage Microsoft.ManagedIdentity \
+  Microsoft.CognitiveServices Microsoft.DBforPostgreSQL; do
   az provider register --namespace "$namespace" --wait --output none
 done
 
@@ -107,6 +108,26 @@ assign "Storage Blob Data Contributor" "$STATE_SCOPE" "$SP_OBJECT_ID" ServicePri
 # O seu usuário também precisa do estado para rodar o Terraform fora do CD.
 assign "Storage Blob Data Contributor" "$STATE_SCOPE" \
   "$(az ad signed-in-user show --query id -o tsv)" User
+
+# O CD atribui à identidade da aplicação o papel de usuária do Azure OpenAI (T11). Contributor não
+# atribui papéis; "Role Based Access Control Administrator" atribui, mas com esta condição (ABAC)
+# só pode criar ou apagar atribuições do papel "Cognitive Services OpenAI User" para identidades de
+# serviço. Não consegue se dar Owner nem dar acesso a pessoas (D4, ASI03).
+OPENAI_USER_ROLE_ID="5e0bd9bd-7b93-4f28-af87-19fc36ad61bd"
+CONDICAO_RBAC="((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR \
+(@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals \
+{${OPENAI_USER_ROLE_ID}} AND @Request[Microsoft.Authorization/roleAssignments:PrincipalType] \
+ForAnyOfAnyValues:StringEqualsIgnoreCase {'ServicePrincipal'})) AND \
+((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR \
+(@Resource[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals \
+{${OPENAI_USER_ROLE_ID}}))"
+RBAC_ADMIN="Role Based Access Control Administrator"
+if [ -z "$(az role assignment list --assignee "$SP_OBJECT_ID" --role "$RBAC_ADMIN" \
+  --scope "$APP_RG_ID" --query '[0].id' -o tsv)" ]; then
+  az role assignment create --assignee-object-id "$SP_OBJECT_ID" \
+    --assignee-principal-type ServicePrincipal --role "$RBAC_ADMIN" --scope "$APP_RG_ID" \
+    --condition "$CONDICAO_RBAC" --condition-version "2.0" --output none
+fi
 
 cat <<EOF
 

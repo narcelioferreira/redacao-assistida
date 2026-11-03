@@ -55,8 +55,9 @@ escola recebe 404 ao tentar vê-la.
 
 | ID | Task | Dono | Segurança | Estim. | Real | Situação |
 |---|---|---|---|---|---|---|
-| T10 | Modelo de dados: o Narcelio desenha tabelas, chaves, restrições e o que é só inserção; Claude escreve as migrations (Alembic) e põe o Postgres no compose. Aceite: diagrama no docs e migration aplicada no CI | 👥 | ASI10, API1, LGPD | 0,5 | | 🚧 código pronto; falta o CI e a sua validação |
-| T11 | Terraform: Postgres Flexible B1ms com pgvector, Azure OpenAI com deployment, identidade gerenciada com papéis; bootstrap ganha permissão restrita de atribuir papéis; decisão de região do modelo. Aceite: apply no demo sem senha no código | 🤖 | ASI03, LGPD | 0,5 | | ⏳ |
+| T10 | Modelo de dados: o Narcelio desenha tabelas, chaves, restrições e o que é só inserção; Claude escreve as migrations (Alembic) e põe o Postgres no compose. Aceite: diagrama no docs e migration aplicada no CI | 👥 | ASI10, API1, LGPD | 0,5 | 0,5 | ✅ |
+| T11 | Terraform: Postgres Flexible B1ms com pgvector, Azure OpenAI com deployment, identidade gerenciada com papéis; bootstrap ganha permissão restrita de atribuir papéis; decisão de região do modelo. Aceite: apply no demo sem senha no código | 🤖 | ASI03, LGPD | 0,5 | 0,5 | 🚧 código pronto; falta o bootstrap e o apply |
+| T11b | Migrations no Azure: job do Container Apps com a identidade das migrations (rodado pelo CD antes de cada deploy) e papel da aplicação no Postgres, sem DDL nem DELETE nas tabelas de auditoria. Aceite: schema aplicado no Azure e a aplicação conecta sem senha | 🤖 | ASI03 | 0,5 | | ⏳ |
 | T12 | Entra External ID: o Narcelio configura o tenant e os usuários demo pelo portal, com guia do Claude. Aceite: token de teste obtido | 👥 | ASI03 | 0,25 | | ⏳ |
 | T13 | Autenticação: validação do JWT (assinatura via JWKS, `iss`, `aud`, `exp`, algoritmos permitidos) e a dependência `usuario_atual`. Aceite: testes com token forjado, expirado e de outra audiência | 👤 | ASI03, API2 | 0,5 | | ⏳ |
 | T14 | Autorização: papéis professor e coordenador, escopo por escola, RLS no Postgres. Aceite: teste de BOLA (professor de outra escola → 404) | 👤 | ASI03, API1, API5 | 0,5 | | ⏳ |

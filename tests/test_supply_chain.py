@@ -203,3 +203,30 @@ def test_papeis_do_cd_restritos_ao_projeto() -> None:
         ("Contributor", "APP_RG_ID"),
         ("Storage Blob Data Contributor", "STATE_SCOPE"),
     ]
+
+
+def test_cd_so_atribui_o_papel_de_usuario_do_openai() -> None:
+    """D4 · ASI03: o CD atribui papéis só com condição (ABAC) e só o de usuária do OpenAI (T11).
+
+    Sem a condição, "Role Based Access Control Administrator" deixaria o CD se dar Owner.
+    """
+    bootstrap = (RAIZ / "infra" / "bootstrap" / "bootstrap.sh").read_text(encoding="utf-8")
+    papel_openai = "5e0bd9bd-7b93-4f28-af87-19fc36ad61bd"  # Cognitive Services OpenAI User
+    assert f'OPENAI_USER_ROLE_ID="{papel_openai}"' in bootstrap
+
+    criacao = re.search(
+        r"az role assignment create[^\n]*\\\n(?:[^\n]*\\\n)*[^\n]*",
+        bootstrap[bootstrap.index('RBAC_ADMIN="Role Based Access Control Administrator"') :],
+    )
+    assert criacao, "atribuição do RBAC Administrator não encontrada"
+    assert '--condition "$CONDICAO_RBAC"' in criacao.group(0)
+    assert '--scope "$APP_RG_ID"' in criacao.group(0)
+
+    condicao = bootstrap[bootstrap.index("CONDICAO_RBAC=") : bootstrap.index("RBAC_ADMIN=")]
+    # Criar e apagar atribuições: os dois limitados ao papel do OpenAI.
+    assert condicao.count("{${OPENAI_USER_ROLE_ID}}") == 2
+    assert "roleAssignments/write" in condicao and "roleAssignments/delete" in condicao
+    assert "{'ServicePrincipal'}" in condicao
+
+    openai_tf = (RAIZ / "infra" / "openai.tf").read_text(encoding="utf-8")
+    assert 'role_definition_name = "Cognitive Services OpenAI User"' in openai_tf

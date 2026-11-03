@@ -33,8 +33,8 @@ Situação de cada parte: ✅ existe · ⏳ planejada (fase entre parênteses).
 | Imagens | GitHub Container Registry público, tag = SHA do commit | ✅ |
 | Infra como código | Terraform (azurerm 5.x), estado remoto em Storage Account | ✅ |
 | CI/CD | GitHub Actions; deploy por OIDC | ✅ (o deploy aguarda a T07) |
-| Banco | PostgreSQL 17 com pgvector; local no compose ✅ (T10), Azure Flexible B1ms ⏳ (T11) | 🚧 |
-| LLM | Azure OpenAI, modelo escolhido pelo experimento E3 | ⏳ (F1) |
+| Banco | PostgreSQL 17; local no compose (T10); Azure Flexible B1ms, só Entra ID, TLS (T11) | 🚧 schema no Azure na T11b |
+| LLM | Azure OpenAI, Global Standard, gpt-5-mini, sem chave, teto de 30 mil tokens/min (D19) | 🚧 recurso na T11; uso na T15/T18 |
 | Login | Entra External ID | ⏳ (F1) |
 | Fila | Service Bus Basic, fila com DLQ | ⏳ (F2) |
 | Worker | Container Apps com escala KEDA pela fila, via Managed Identity | ⏳ (F2) |

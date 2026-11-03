@@ -38,5 +38,11 @@ o controle só conta como comprovado se pelo menos um teste falha.
 | M31 | ASI10 · auditoria | Nota da IA pode ser alterada depois de gravada | `test_avaliacao_nao_aceita_alteracao` | ✅ morta |
 | M32 | LGPD | aluno_ref apagado sem registrar a anonimização | `test_aluno_ref_nao_some_sem_registrar_a_anonimizacao` | ✅ morta |
 | M33 | ASI04 · AST07 | Postgres do compose sem digest (tag móvel) | `test_imagens_de_servico_por_digest` | ✅ morta |
+| M34 | ASI03 · D4 | CD pode atribuir qualquer papel (RBAC Administrator sem condição) | `test_cd_so_atribui_o_papel_de_usuario_do_openai` | ✅ morta |
+| M35 | ASI03 | Azure OpenAI aceita chave de API | `openai_sem_chave` | ✅ morta |
+| M36 | ASI03 | Postgres aceita login por senha | `postgres_sem_senha_e_com_tls` | ✅ morta |
+| M37 | ASI08 | Deployment do OpenAI sem teto de capacidade | `capacidade_acima_do_teto_e_recusada` | ✅ morta |
+| M38 | ASI03 | Firewall do Postgres aberto para a internet | `firewall_so_servicos_do_azure` | ✅ morta |
+| M39 | ASI03 | Identidade da aplicação vira administradora do Postgres | `admin_do_banco_e_a_identidade_das_migrations` | ✅ morta |
 
-**33 de 33 mutações mortas.**
+**39 de 39 mutações mortas.**

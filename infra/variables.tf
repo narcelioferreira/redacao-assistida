@@ -24,3 +24,26 @@ variable "monthly_budget" {
   type        = number
   default     = 50
 }
+
+variable "openai_modelo" {
+  description = "Modelo do deployment padrão do Azure OpenAI (D19). O E3 compara com outros."
+  type        = string
+  default     = "gpt-5-mini"
+}
+
+variable "openai_modelo_versao" {
+  description = "Versão fixa do modelo. Nula usa a versão padrão do Azure no momento da criação."
+  type        = string
+  default     = null
+}
+
+variable "openai_capacidade" {
+  description = "Teto do deployment, em milhares de tokens por minuto (ASI08)."
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.openai_capacidade >= 1 && var.openai_capacidade <= 100
+    error_message = "Capacidade de 1 a 100 mil tokens/min: acima disso, meça antes (custo e abuso, ASI08)."
+  }
+}

@@ -324,3 +324,61 @@ de = '(image: pgvector/pgvector:pg17)@sha256:[0-9a-f]{64}'
 para = '\1'
 regex = true
 comando = "pytest"
+
+# --- Azure OpenAI e Postgres (T11 · D19) -----------------------------------------------------
+
+[[mutacao]]
+id = "M34"
+controle = "ASI03 · D4"
+descricao = "CD pode atribuir qualquer papel (RBAC Administrator sem condição)"
+arquivo = "infra/bootstrap/bootstrap.sh"
+de = """ --scope "$APP_RG_ID" \\
+    --condition "$CONDICAO_RBAC" --condition-version "2.0" --output none"""
+para = """ --scope "$APP_RG_ID" \\
+    --output none"""
+comando = "pytest"
+
+[[mutacao]]
+id = "M35"
+controle = "ASI03"
+descricao = "Azure OpenAI aceita chave de API"
+arquivo = "infra/openai.tf"
+de = "  local_auth_enabled            = false"
+para = "  local_auth_enabled            = true"
+comando = "terraform"
+
+[[mutacao]]
+id = "M36"
+controle = "ASI03"
+descricao = "Postgres aceita login por senha"
+arquivo = "infra/postgres.tf"
+de = "    password_auth_enabled         = false"  # pragma: allowlist secret
+para = "    password_auth_enabled         = true"  # pragma: allowlist secret
+comando = "terraform"
+
+[[mutacao]]
+id = "M37"
+controle = "ASI08"
+descricao = "Deployment do OpenAI sem teto de capacidade"
+arquivo = "infra/variables.tf"
+de = "    condition     = var.openai_capacidade >= 1 && var.openai_capacidade <= 100"
+para = "    condition     = var.openai_capacidade >= 1"
+comando = "terraform"
+
+[[mutacao]]
+id = "M38"
+controle = "ASI03"
+descricao = "Firewall do Postgres aberto para a internet"
+arquivo = "infra/postgres.tf"
+de = '  end_ip_address   = "0.0.0.0"'
+para = '  end_ip_address   = "255.255.255.255"'
+comando = "terraform"
+
+[[mutacao]]
+id = "M39"
+controle = "ASI03"
+descricao = "Identidade da aplicação vira administradora do Postgres"
+arquivo = "infra/postgres.tf"
+de = "  principal_name      = azurerm_user_assigned_identity.migracao.name"
+para = "  principal_name      = azurerm_user_assigned_identity.app.name"
+comando = "terraform"

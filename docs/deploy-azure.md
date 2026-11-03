@@ -32,6 +32,10 @@ variáveis para o passo 5. Pode rodar de novo sem problema.
 
 Para outra região ou outro nome de repositório: `LOCATION=eastus2 GITHUB_REPO=usuario/repo ...`.
 
+**Quando o bootstrap mudar, rode de novo antes do merge.** Foi o caso da T11, que registrou os
+provedores do Azure OpenAI, do Postgres e das identidades, e deu ao CD a permissão limitada de
+atribuir o papel "OpenAI User". Sem isso, o `terraform apply` do CD falha por falta de permissão.
+
 ## 4. Tornar a imagem pública
 
 O Container Apps baixa a imagem do GHCR sem credencial (decisão D3), e o GHCR cria pacotes privados

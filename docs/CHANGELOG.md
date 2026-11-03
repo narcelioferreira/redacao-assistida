@@ -4,6 +4,33 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 
 ## F1 · Uma redação
 
+### T11 · Azure OpenAI e Postgres no Azure (Terraform) · 03/11/2026 · 🤖 Claude
+
+**Feito**
+- Decisões do Narcelio (D19): Azure OpenAI no Brazil South, Global Standard, gpt-5-mini, teto de
+  30 mil tokens/min; Postgres Flexible B1ms 17 com endpoint público e login só por Entra ID.
+- Terraform: identidades da aplicação e das migrations, Azure OpenAI sem chave, deployment, papel
+  "OpenAI User" da aplicação, Postgres sem senha com TLS, firewall só para serviços do Azure, banco
+  `redacao` e pgvector liberado. A API recebe a identidade e as variáveis de ambiente (ainda sem uso).
+- Bootstrap: provedores novos e permissão do CD para atribuir **só** o papel "OpenAI User" (condição
+  ABAC).
+- 7 testes novos do Terraform e 6 mutações (M34–M39).
+
+**Testado**
+- `make tf-check` (13 de 13), `make check`, `make test-integracao` e `make mutacao` (39 de 39 mortas).
+- Cota real da assinatura consultada pelo Narcelio: gpt-5-mini 500 mil tokens/min em Global Standard.
+- ID do papel "Cognitive Services OpenAI User" conferido na documentação da Microsoft.
+
+**Problemas encontrados**
+- Assinatura em avaliação gratuita: expira por volta de 29/11/2026. Upgrade necessário antes.
+- detect-secrets marcou a mutação M36 por causa da palavra "password" (falso positivo, marcado).
+- O Docker da sessão parou entre sessões: as mutações do banco apareceram como "erro" até o Postgres
+  local voltar. O script separou corretamente erro de sobrevivência.
+
+**Pendente**
+- Rodar o bootstrap de novo e conferir o `terraform apply` no Azure (critério de aceite da T11).
+- Migrations no Azure e papel da aplicação no banco (T11b).
+
 ### T10 · Modelo de dados · 03/11/2026 · 👥 Narcelio decidiu, Claude executou
 
 **Feito**

@@ -6,6 +6,8 @@ locals {
   location = data.azurerm_resource_group.main.location
   # A tag da imagem é o SHA do commit; a API informa esse valor em /health/live.
   git_sha = element(split(":", var.image), 1)
+  # Sufixo estável para nomes que precisam ser únicos no Azure inteiro (OpenAI, Postgres).
+  sufixo = substr(sha1(data.azurerm_resource_group.main.id), 0, 8)
 
   tags = {
     projeto        = "redacao-assistida"
@@ -56,6 +58,12 @@ resource "azurerm_container_app" "api" {
   revision_mode                = "Single"
   tags                         = local.tags
 
+  # Identidade da aplicação (D5, ASI03): acessa o Azure OpenAI e o Postgres sem senha nem chave.
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.app.id]
+  }
+
   secret {
     name  = "appinsights-connection-string"
     value = azurerm_application_insights.main.connection_string
@@ -98,6 +106,32 @@ resource "azurerm_container_app" "api" {
         name = "APPLICATIONINSIGHTS_CONNECTION_STRING"
         # Nome do secret do Container App, não o valor (falso positivo do detect-secrets).
         secret_name = "appinsights-connection-string" # pragma: allowlist secret
+      }
+
+      # Com AZURE_CLIENT_ID, o DefaultAzureCredential usa a identidade da aplicação.
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.app.client_id
+      }
+
+      env {
+        name  = "AZURE_OPENAI_ENDPOINT"
+        value = azurerm_cognitive_account.openai.endpoint
+      }
+
+      env {
+        name  = "AZURE_OPENAI_DEPLOYMENT"
+        value = azurerm_cognitive_deployment.chat.name
+      }
+
+      env {
+        name  = "DATABASE_HOST"
+        value = azurerm_postgresql_flexible_server.main.fqdn
+      }
+
+      env {
+        name  = "DATABASE_NAME"
+        value = azurerm_postgresql_flexible_server_database.redacao.name
       }
 
       liveness_probe {

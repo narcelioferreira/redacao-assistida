@@ -146,3 +146,30 @@ Consequências que decorrem dessas escolhas, aplicadas no schema:
   não aceita alteração. Volta se aparecer a necessidade, em tabela própria.
 - Uma redação por aluno por lote (`UNIQUE (lote_id, aluno_ref)`).
 - A revisão aponta para a avaliação que o professor viu, sempre da mesma redação.
+
+## D19 · Azure OpenAI e Postgres no Azure (T11)
+
+Decidido pelo Narcelio, com base na cota real da assinatura (consultada em 03/11/2026).
+
+- **Azure OpenAI no Brazil South, deployment Global Standard, gpt-5-mini como padrão.** No Brazil
+  South esses modelos só existem como Global Standard (cota da assinatura: gpt-5-mini 500 mil
+  tokens/min, gpt-4.1-mini 200 mil). O texto pode ser processado em outra região: aceito porque chega
+  sem nome de aluno e, a partir da T33, com dados pessoais mascarados. Criar o recurso numa região dos
+  EUA também tiraria o processamento do Brasil, com menos cota.
+- **Teto de 30 mil tokens/min** no deployment (de 1 a 100, validado no Terraform): limite de custo e
+  de abuso (ASI08). Sobe só com medição (P1).
+- **Sem chave de API** no Azure OpenAI: só a identidade da aplicação, com o papel "Cognitive Services
+  OpenAI User".
+- **Postgres Flexible B1ms, versão 17, endpoint público com login só por Entra ID** (sem senha), TLS
+  obrigatório e firewall só para serviços do Azure. Rede privada foi descartada para a demo: exigiria
+  recriar o ambiente do Container Apps e rodar migrations de dentro da Azure, quase dobrando a task.
+  Fica como risco residual.
+- **Duas identidades gerenciadas:** a da aplicação (OpenAI e, pela T11b, um papel no banco sem DDL) e
+  a das migrations (administradora Entra do Postgres). Um comprometimento da API não altera o schema.
+- **O CD atribui papéis, com condição.** "Role Based Access Control Administrator" no grupo do projeto,
+  limitado por condição ABAC a criar e apagar só atribuições do papel "OpenAI User" para identidades
+  de serviço. Amplia a D4 o mínimo necessário: o CD não consegue se dar Owner nem dar acesso a pessoas.
+- **Versão do modelo:** sem fixar por enquanto (vale a padrão do Azure na criação). Fixar quando o E3
+  escolher o modelo, porque a avaliação depende da versão.
+- **Assinatura em avaliação gratuita**, que expira 30 dias depois da criação (por volta de 29/11/2026):
+  o upgrade para pagamento por uso é necessário para manter os recursos e os 12 meses grátis do Postgres.

@@ -8,6 +8,12 @@ mock_provider "azurerm" {
       location = "brazilsouth"
     }
   }
+
+  mock_data "azurerm_client_config" {
+    defaults = {
+      tenant_id = "11111111-1111-1111-1111-111111111111"
+    }
+  }
 }
 
 variables {
@@ -90,5 +96,98 @@ run "connection_string_como_secret" {
       if e.name == "APPLICATIONINSIGHTS_CONNECTION_STRING"
     ])
     error_message = "A connection string precisa vir de um secret do Container App."
+  }
+}
+
+# --- T11 · Azure OpenAI e Postgres (D19) ----------------------------------------------------
+
+# ASI03: o Azure OpenAI não aceita chave de API, só identidade com papel.
+run "openai_sem_chave" {
+  command = plan
+
+  assert {
+    condition     = azurerm_cognitive_account.openai.local_auth_enabled == false
+    error_message = "O Azure OpenAI precisa ter a autenticação por chave desligada."
+  }
+}
+
+# D19 · ASI08: Global Standard com teto de capacidade baixo.
+run "deployment_global_com_teto" {
+  command = plan
+
+  assert {
+    condition     = azurerm_cognitive_deployment.chat.sku[0].name == "GlobalStandard"
+    error_message = "O deployment precisa ser Global Standard (D19)."
+  }
+
+  assert {
+    condition     = azurerm_cognitive_deployment.chat.sku[0].capacity <= 100
+    error_message = "Capacidade acima de 100 mil tokens/min exige medição antes (ASI08)."
+  }
+}
+
+run "capacidade_acima_do_teto_e_recusada" {
+  command = plan
+
+  variables {
+    openai_capacidade = 500
+  }
+
+  expect_failures = [var.openai_capacidade]
+}
+
+# ASI03: a aplicação só usa o modelo, no recurso do projeto.
+run "papel_da_aplicacao_no_openai" {
+  command = plan
+
+  assert {
+    condition     = azurerm_role_assignment.app_openai.role_definition_name == "Cognitive Services OpenAI User"
+    error_message = "A aplicação deve ter só o papel de usuária do OpenAI."
+  }
+}
+
+# ASI03: Postgres sem senha, só Entra ID, com TLS obrigatório.
+run "postgres_sem_senha_e_com_tls" {
+  command = plan
+
+  assert {
+    condition = (
+      azurerm_postgresql_flexible_server.main.authentication[0].password_auth_enabled == false &&
+      azurerm_postgresql_flexible_server.main.authentication[0].active_directory_auth_enabled == true
+    )
+    error_message = "O Postgres precisa aceitar só login por Entra ID."
+  }
+
+  assert {
+    condition     = azurerm_postgresql_flexible_server_configuration.tls.value == "ON"
+    error_message = "O Postgres precisa exigir TLS."
+  }
+
+  assert {
+    condition     = azurerm_postgresql_flexible_server.main.version == "17"
+    error_message = "A migration usa uuid_extract_version, do Postgres 17 (D18)."
+  }
+}
+
+# ASI03: a administradora do banco é a identidade das migrations, nunca a da aplicação.
+run "admin_do_banco_e_a_identidade_das_migrations" {
+  command = plan
+
+  assert {
+    condition     = azurerm_postgresql_flexible_server_active_directory_administrator.migracao.principal_name == "id-redacao-migracao"
+    error_message = "Só a identidade das migrations pode ser administradora do Postgres."
+  }
+}
+
+# Firewall: só a regra especial dos serviços do Azure, nunca a internet inteira.
+run "firewall_so_servicos_do_azure" {
+  command = plan
+
+  assert {
+    condition = (
+      azurerm_postgresql_flexible_server_firewall_rule.servicos_azure.start_ip_address == "0.0.0.0" &&
+      azurerm_postgresql_flexible_server_firewall_rule.servicos_azure.end_ip_address == "0.0.0.0"
+    )
+    error_message = "A regra de firewall não pode abrir faixas da internet."
   }
 }

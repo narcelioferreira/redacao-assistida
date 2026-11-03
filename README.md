@@ -94,7 +94,7 @@ Os controles seguem o OWASP Top 10 for Agentic Applications 2026 (ASI01–ASI10)
 complementar ao OWASP Agentic Skills Top 10 (AST, em revisão pública) e ao OWASP API Security Top 10.
 Cada controle implementado tem um teste que o comprova e foi validado por mutação: com a proteção
 desligada de propósito, os testes falham. O CI roda as mutações a cada PR
-(**33 de 33 mortas**, [relatório](reports/seguranca/mutacao.md)).
+(**39 de 39 mortas**, [relatório](reports/seguranca/mutacao.md)).
 
 O modelo de ameaças, os testes por controle, os mapeamentos complementares e os riscos residuais estão
 em [docs/03-seguranca.md](docs/03-seguranca.md).
@@ -154,7 +154,7 @@ docs/              visão, arquitetura, plano, segurança, decisões, deploy e c
 - [Arquitetura](docs/01-arquitetura.md)
 - [Plano de tasks](docs/02-plano-de-tasks.md)
 - [Segurança: modelo de ameaças e controles](docs/03-seguranca.md)
-- [Decisões registradas (D1–D18)](docs/decisoes.md)
+- [Decisões registradas (D1–D19)](docs/decisoes.md)
 - [Deploy no Azure](docs/deploy-azure.md)
 - [Changelog](docs/CHANGELOG.md)
 
