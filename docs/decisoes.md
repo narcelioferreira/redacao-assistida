@@ -171,5 +171,23 @@ Decidido pelo Narcelio, com base na cota real da assinatura (consultada em 03/11
   de serviço. Amplia a D4 o mínimo necessário: o CD não consegue se dar Owner nem dar acesso a pessoas.
 - **Versão do modelo:** sem fixar por enquanto (vale a padrão do Azure na criação). Fixar quando o E3
   escolher o modelo, porque a avaliação depende da versão.
-- **Assinatura em avaliação gratuita**, que expira 30 dias depois da criação (por volta de 29/11/2026):
-  o upgrade para pagamento por uso é necessário para manter os recursos e os 12 meses grátis do Postgres.
+- **Assinatura em avaliação gratuita**, que expira 30 dias depois da criação (por volta de 29/11/2026).
+  Sem upgrade (D20).
+
+## D20 · Janela do Azure: avaliação gratuita, sem upgrade
+
+Decidido pelo Narcelio em 04/11/2026. A assinatura é uma avaliação gratuita (crédito de US$ 200, 30
+dias) com cartão de terceiros apenas para verificação. **Não haverá upgrade:** quando o crédito ou o
+prazo acabar (por volta de 29/11/2026), a Azure desativa os recursos e nada é cobrado.
+
+Consequências:
+- **O Azure tem uma janela.** Tudo o que precisa da nuvem para gerar evidência roda até ~28/11, na
+  ordem de prioridade do plano (`02-plano-de-tasks.md`, seção "Janela do Azure").
+- **As evidências ficam no repositório:** relatórios de avaliação em `reports/`, execuções do CI e do
+  CD no GitHub, e capturas de tela feitas pelo Narcelio no fim da janela.
+- **O projeto continua reproduzível:** com outra assinatura, bootstrap e `terraform apply` recriam
+  tudo. Localmente, `docker compose` roda a API e o banco.
+- **Depois da janela, o LLM de desenvolvimento muda por configuração.** O cliente da T15 usa a API
+  compatível com OpenAI, então a mesma aplicação fala com Azure OpenAI, Groq ou Ollama.
+- **O que não depende de nuvem fica para depois da janela,** se faltar tempo: o front (roda local), o
+  login real (a T13 testa com tokens assinados localmente) e as tasks opcionais.

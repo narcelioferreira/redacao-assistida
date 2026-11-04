@@ -133,4 +133,4 @@ Planejado:
 | Injeção nova que engane as regras e o modelo (F1+) | A nota final é do professor; o alerta não zera | Conjunto adversarial (T34) e revisão dos falsos negativos |
 | Texto de aluno processado pelo Azure OpenAI em Global Standard (pode sair do Brasil, D19) | Sem nome de aluno; PII mascarada antes do envio (T33) | Rever se surgir deployment regional no Brazil South |
 | Postgres com endpoint público: qualquer IP de serviço do Azure alcança a porta (D19) | Sem senha: só token Entra de identidade com papel; TLS obrigatório | Rede privada (VNet) se o projeto sair da demo |
-| Assinatura em avaliação gratuita expira por volta de 29/11/2026 | Lembrete no CHANGELOG | Upgrade para pagamento por uso antes da data |
+| A demo no Azure deixa de existir quando a avaliação gratuita expira (~29/11/2026, D20) | Evidências guardadas no repositório; ambiente recriável com `terraform apply` | — |

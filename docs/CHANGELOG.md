@@ -22,7 +22,7 @@ Uma entrada por task fechada: o que foi feito, como foi testado e quais problema
 - ID do papel "Cognitive Services OpenAI User" conferido na documentação da Microsoft.
 
 **Problemas encontrados**
-- Assinatura em avaliação gratuita: expira por volta de 29/11/2026. Upgrade necessário antes.
+- Assinatura em avaliação gratuita: expira por volta de 29/11/2026, sem upgrade (D20).
 - detect-secrets marcou a mutação M36 por causa da palavra "password" (falso positivo, marcado).
 - O Docker da sessão parou entre sessões: as mutações do banco apareceram como "erro" até o Postgres
   local voltar. O script separou corretamente erro de sobrevivência.

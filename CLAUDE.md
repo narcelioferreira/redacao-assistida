@@ -115,7 +115,7 @@ os três, mais gitleaks e o build com smoke test da imagem.
 - `docs/01-arquitetura.md`: componentes, fluxo, contrato da API, modelo de dados, custos.
 - `docs/02-plano-de-tasks.md`: fases, tasks, donos, riscos tratados, estimativas e critérios de aceite.
 - `docs/03-seguranca.md`: modelo de ameaças, controles com teste e mutação, riscos residuais.
-- `docs/decisoes.md`: decisões D1–D19. Mudança que contraria uma decisão registra a nova no mesmo PR.
+- `docs/decisoes.md`: decisões D1–D20. Mudança que contraria uma decisão registra a nova no mesmo PR.
 - `docs/deploy-azure.md`: bootstrap e primeiro deploy.
 - `docs/CHANGELOG.md`: uma entrada por task fechada (o que foi feito, como foi testado, problemas
   encontrados). Atualize também a coluna "Real" do plano.

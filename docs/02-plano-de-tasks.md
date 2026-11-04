@@ -30,6 +30,27 @@ nesta ordem:
 A proveniência segue o dono: 👤 `HUMANO` (perfil padrão), 🤖 `IA_ASSISTIDO` e 👥 `HÍBRIDO` (perfil
 reforçado).
 
+## Janela do Azure (D20): até ~28/11/2026
+
+A assinatura é uma avaliação gratuita, sem upgrade. O que precisa do Azure roda dentro da janela, por
+ordem de valor para o portfólio. Escrever o código pode ser feito a qualquer momento; o que está aqui
+é **a execução na nuvem**.
+
+| Prioridade | Na nuvem | Depende de | Evidência que fica |
+|---|---|---|---|
+| 1 | OpenAI e Postgres no ar (T11, T11b) | — | Apply no CD |
+| 2 | Uma redação avaliada de ponta a ponta (T18 no Azure) | T15, T16, T17, T18 | Captura da API e trace no App Insights |
+| 3 | **Avaliação com o corpus real (T32, T34, T35)**: concordância, custo, latência, robustez | T30, T31, T32, T33 | **Relatórios em `reports/`** |
+| 4 | Fila e worker escalando 0 → N (F2 no Azure) | T20–T23 | Capturas das réplicas e do trace |
+| 5 | Experimentos de desempenho (T36) | F2 | Relatório em `reports/` |
+
+**Caminho crítico:** T15 e T16 (🤖) → T17 e T18 (👤) → T30 e T32 (🤖) com a T31 (👤) → execuções do
+E1–E3 no Azure OpenAI. A avaliação (prioridade 3) é a evidência que mais pesa e continua valendo depois
+da janela.
+
+**Rodam localmente, a qualquer hora:** T13 e T14 (tokens assinados nos testes), T31, T33, front
+(T40–T43) e documentação. O login real (T12, Entra External ID) é opcional dentro da janela.
+
 ## F0 · Esqueleto no ar (estimativa: 2 d)
 
 Aceite da fase: um push na `main` publica uma nova revisão no Azure sozinho, e o smoke test confirma
