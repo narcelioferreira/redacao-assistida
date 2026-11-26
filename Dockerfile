@@ -1,7 +1,7 @@
 # Imagem única da aplicação: a API agora; o worker da F2 usa a mesma imagem com outro comando.
 # Imagens fixadas por digest: a tag sozinha pode mudar por baixo (OWASP AST07). O Dependabot atualiza.
 
-FROM ghcr.io/astral-sh/uv:0.13.7@sha256:96f40d3904aad8d0bd010539001d36c8e2188b981e1334471a90c4a1d93bb490 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.10@sha256:a3ea1357342c1a4bf9a0c53a3deb1b55379aefa037338d8113d5771efa01774f AS uv
 
 FROM python:3.12.16-slim-trixie@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 AS build
 COPY --from=uv /uv /usr/local/bin/uv
